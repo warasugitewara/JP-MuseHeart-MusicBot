@@ -1,10 +1,11 @@
-# MuseHeart-MusicBot 日本語版
+# JP-MuseHeart-MusicBot
 
 ## Pythonで作成された音楽ボット 🎵
 
 インタラクティブプレイヤー、スラッシュコマンド対応、[Last.fm](https://www.last.fm/)連携など、多機能なDiscord音楽ボットです。
 
 > **📌 オリジナルリポジトリ**: このプロジェクトは [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot) の日本語フォークです。
+> 設定ファイル（`.example.env`）のコメントを日本語化しています（一部翻訳中）。
 
 ---
 
@@ -17,6 +18,7 @@
 - 📢 **RPC (Rich Presence) 対応** - Discordステータスに再生中の曲を表示
 - 🔊 **マルチボイスチャンネル対応** - 複数のボイスチャンネルで同時再生可能
 - 📝 **Song Requestチャンネル** - 専用チャンネルでリクエスト管理
+- 💓 **Uptime Kuma 監視対応** - Push モニターでボットの死活監視が可能
 
 ---
 
@@ -75,36 +77,37 @@
 **1. ソースコードの取得**
 
 ```shell
-git clone https://github.com/zRitsu/MuseHeart-MusicBot.git
-cd MuseHeart-MusicBot
+git clone https://github.com/warasugitewara/JP-MuseHeart-MusicBot.git
+cd JP-MuseHeart-MusicBot
 ```
 
-または [ZIPファイル](https://github.com/zRitsu/MuseHeart-MusicBot/archive/refs/heads/main.zip) をダウンロードして展開
+または [ZIPファイル](https://github.com/warasugitewara/JP-MuseHeart-MusicBot/archive/refs/heads/main.zip) をダウンロードして展開
 
 **2. セットアップの実行**
 
 - **Windows**: `source_setup.sh` をダブルクリック
-- **Linux**: 
+- **Linux**:
 ```shell
 bash source_setup.sh
 ```
 
 **3. 環境設定**
 
-生成された `.env` ファイルを編集し、以下の項目を設定：
+`.example.env` を `.env` にコピーして編集し、以下の項目を設定：
 
 | 項目 | 説明 |
 |------|------|
-| `TOKEN_BOT_1` | Discordボットのトークン |
-| `DEFAULT_PREFIX` | コマンドのプレフィックス |
-| `MONGO` | MongoDB接続URL（推奨） |
+| `TOKEN` | Discordボットのトークン（必須） |
+| `DEFAULT_PREFIX` | コマンドのプレフィックス（デフォルト: `!!`） |
+| `MONGO` | MongoDB接続URL（未設定時はJSONファイルで代替） |
 | `SPOTIFY_CLIENT_ID` | Spotify Client ID |
 | `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret |
+| `UPTIME_KUMA_PUSH_URL` | Uptime Kuma Push URL（省略可） |
 
 **4. ボットの起動**
 
-- **Windows**: `source_start_win.bat` をダブルクリック
-- **Linux**: 
+- **Windows**: `source_start_windows.bat` をダブルクリック
+- **Linux**:
 ```shell
 bash source_start.sh
 ```
@@ -129,7 +132,7 @@ bash source_update.sh
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/zRitsu/MuseHeart-MusicBot/tree/main)
 
-1. **TOKEN_BOT_1** にボットトークンを入力
+1. **TOKEN** にボットトークンを入力
 2. **DEFAULT_PREFIX** にプレフィックスを設定
 3. **SPOTIFY_CLIENT_ID** と **SPOTIFY_CLIENT_SECRET** を設定
 4. **MONGO** にMongoDBの接続URLを入力
@@ -166,6 +169,26 @@ bash source_update.sh
 
 ---
 
+## 💓 Uptime Kuma 監視（オプション）
+
+[Uptime Kuma](https://github.com/louislam/uptime-kuma) の Push モニターを使ってボットの死活監視ができます。
+
+**設定手順:**
+
+1. Uptime Kuma で **Push** タイプのモニターを新規作成
+2. 表示される Push URL をコピー（例: `https://status.example.com/api/push/xxxxxxxxxx?status=up&msg=OK&ping=`）
+3. `.env` に追記:
+
+```env
+UPTIME_KUMA_PUSH_URL='https://status.example.com/api/push/xxxxxxxxxx?status=up&msg=OK&ping='
+```
+
+4. ボットを再起動
+
+> 💡 モニターのハートビート間隔は **90秒以上** に設定することを推奨します（ボットは60秒ごとに送信します）。
+
+---
+
 ## ⚠️ 注意事項
 
 ### 使用について
@@ -182,7 +205,8 @@ bash source_update.sh
 
 ### 問題報告
 
-問題が発生した場合は、[Issue](https://github.com/zRitsu/MuseHeart-MusicBot/issues) で詳細を報告してください。
+このフォーク固有の問題は [Issue](https://github.com/warasugitewara/JP-MuseHeart-MusicBot/issues) で報告してください。
+オリジナルボットの不具合は [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot/issues) へ。
 
 ---
 
@@ -194,16 +218,20 @@ bash source_update.sh
 
 ## 🙏 クレジット・謝辞
 
+### このフォークの著者
+
+- **[warasugitewara](https://github.com/warasugitewara)** - 日本語化・Uptime Kuma対応
+- **[@claude](https://github.com/claude)** (Anthropic) - 実装支援
+
 ### オリジナル開発者
+
 - **[zRitsu](https://github.com/zRitsu)** - MuseHeart-MusicBot オリジナル作者
 
 ### 使用ライブラリ・プロジェクト
+
 - [DisnakeDev](https://github.com/DisnakeDev) - disnake
 - [Rapptz](https://github.com/Rapptz/discord.py) - discord.py
 - [Pythonista Guild](https://github.com/PythonistaGuild) - wavelink
 - [Lavalink-Devs](https://github.com/lavalink-devs) - Lavalink & Lavaplayer
 - [DarrenOfficial](https://lavalink-list.darrennathanael.com/) - Lavalink サーバーリスト
-
-### その他
-- バグ報告やフィードバックを提供してくださったすべてのコミュニティメンバーの皆様
-- その他の依存関係は [dependency graph](https://github.com/zRitsu/MuseHeart-MusicBot/network/dependencies) をご確認ください
+- [louislam](https://github.com/louislam/uptime-kuma) - Uptime Kuma
