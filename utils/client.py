@@ -930,6 +930,10 @@ class BotPool:
 
         self.loop.create_task(self.setup_pool_extras())
 
+        if os.environ.get("UPTIME_KUMA_PUSH_URL"):
+            from utils.uptime_kuma import kuma_heartbeat
+            self.loop.create_task(kuma_heartbeat())
+
         if not self.bots:
 
             message = "ボットのトークンが正しく設定されていません！"
