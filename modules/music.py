@@ -203,7 +203,7 @@ class Music(commands.Cog):
 
     @check_voice()
     @can_send_message_check()
-    @commands.message_command(name="add to queue", extras={"check_player": False},
+    @commands.message_command(name=disnake.Localized("add to queue", data={disnake.Locale.pt_BR: "adicionar à fila", disnake.Locale.ja: "キューに追加"}), extras={"check_player": False},
                               cooldown=play_cd, max_concurrency=play_mc)
     async def message_play(self, inter: disnake.MessageCommandInteraction):
 

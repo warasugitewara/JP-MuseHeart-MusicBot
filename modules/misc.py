@@ -779,7 +779,7 @@ class Misc(commands.Cog):
 
         await self.invite_button(inter, is_command=True)
 
-    @commands.user_command(name="Avatar")
+    @commands.user_command(name=disnake.Localized("Avatar", data={disnake.Locale.pt_BR: "Avatar", disnake.Locale.ja: "アバター"}))
     async def avatar(self, inter: disnake.UserCommandInteraction):
 
         user = inter.target
