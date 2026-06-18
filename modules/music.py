@@ -231,24 +231,24 @@ class Music(commands.Cog):
     async def search(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            query: str = commands.Param(name="busca", desc="曲名またはリンク。"),
+            query: str = commands.Param(name="search", desc="曲名またはリンク。"),
             *,
-            position: int = commands.Param(name="posição", description="曲を特定の位置に配置します",
+            position: int = commands.Param(name="position", description="曲を特定の位置に配置します",
                                            default=0),
             force_play: str = commands.Param(
-                name="tocar_agora",
+                name="play_now",
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
                     disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
-            options: str = commands.Param(name="opções", description="プレイリスト処理オプション",
+            options: str = commands.Param(name="options", description="プレイリスト処理オプション",
                                           choices=playlist_opts, default=False),
             server: str = commands.Param(name="server", desc="検索に特定の音楽サーバーを使用します。",
                                          default=None),
             manual_bot_choice: str = commands.Param(
-                name="selecionar_bot",
+                name="select_bot",
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
@@ -306,7 +306,7 @@ class Music(commands.Cog):
             self,
             inter: disnake.ApplicationCommandInteraction,
             channel: Union[disnake.VoiceChannel, disnake.StageChannel] = commands.Param(
-                name="canal",
+                name="channel",
                 description="接続するチャンネル"
             )
     ):
@@ -531,12 +531,12 @@ class Music(commands.Cog):
             self,
             inter: Union[disnake.ApplicationCommandInteraction, CustomContext],
             file: disnake.Attachment = commands.Param(
-                name="arquivo", description="再生またはキューに追加する音声ファイル"
+                name="file", description="再生またはキューに追加する音声ファイル"
             ),
-            position: int = commands.Param(name="posição", description="曲を特定の位置に配置します",
+            position: int = commands.Param(name="position", description="曲を特定の位置に配置します",
                                            default=0),
             force_play: str = commands.Param(
-                name="tocar_agora",
+                name="play_now",
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
@@ -546,7 +546,7 @@ class Music(commands.Cog):
             server: str = commands.Param(name="server", desc="検索に特定の音楽サーバーを使用します。",
                                          default=None),
             manual_bot_choice: str = commands.Param(
-                name="selecionar_bot",
+                name="select_bot",
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
@@ -606,11 +606,11 @@ class Music(commands.Cog):
     async def play(
             self,
             inter: Union[disnake.ApplicationCommandInteraction, CustomContext],
-            query: str = commands.Param(name="busca", desc="曲名またはリンク。"), *,
-            position: int = commands.Param(name="posição", description="曲を特定の位置に配置します",
+            query: str = commands.Param(name="search", desc="曲名またはリンク。"), *,
+            position: int = commands.Param(name="position", description="曲を特定の位置に配置します",
                                            default=0),
             force_play: str = commands.Param(
-                name="tocar_agora",
+                name="play_now",
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
@@ -618,22 +618,22 @@ class Music(commands.Cog):
                 ]
             ),
             mix: str = commands.Param(
-                name="recomendadas",
+                name="recommended",
                 description="指定したアーティスト名-曲名に基づいておすすめの曲を再生します",
                 default=False,
                 choices=[
                     disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
-            manual_selection: bool = commands.Param(name="selecionar_manualmente",
+            manual_selection: bool = commands.Param(name="manual_select",
                                                     description="検索結果から曲を手動で選択します",
                                                     default=False),
-            options: str = commands.Param(name="opções", description="プレイリスト処理オプション",
+            options: str = commands.Param(name="options", description="プレイリスト処理オプション",
                                           choices=playlist_opts, default=False),
             server: str = commands.Param(name="server", desc="検索に特定の音楽サーバーを使用します。",
                                          default=None),
             manual_bot_choice: str = commands.Param(
-                name="selecionar_bot",
+                name="select_bot",
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
@@ -2132,11 +2132,11 @@ class Music(commands.Cog):
             self,
             inter: disnake.ApplicationCommandInteraction,
             query: str = commands.Param(
-                name="nome",
+                name="name",
                 description="曲名（完全または一部）。"
             ),
             case_sensitive: bool = commands.Param(
-                name="nome_exato", default=False,
+                name="exact_name", default=False,
                 description="単語ごとではなく、曲名の完全一致フレーズで検索します。",
 
             )
@@ -2159,7 +2159,7 @@ class Music(commands.Cog):
             self,
             inter: disnake.ApplicationCommandInteraction, *,
             query: str = commands.Param(
-                name="nome",
+                name="name",
                 description="曲名（完全または一部）。",
                 default=None,
             ),
@@ -2174,7 +2174,7 @@ class Music(commands.Cog):
                 default="no"
             ),
             case_sensitive: bool = commands.Param(
-                name="nome_exato", default=False,
+                name="exact_name", default=False,
                 description="単語ごとではなく、曲名の完全一致フレーズで検索します。",
 
             )
@@ -2442,7 +2442,7 @@ class Music(commands.Cog):
     async def volume(
             self,
             inter: disnake.ApplicationCommandInteraction, *,
-            value: int = commands.Param(name="nível", description="5から150の間のレベル", min_value=5.0, max_value=150.0)
+            value: int = commands.Param(name="level", description="5から150の間のレベル", min_value=5.0, max_value=150.0)
     ):
 
         try:
@@ -2585,7 +2585,7 @@ class Music(commands.Cog):
     async def seek(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            position: str = commands.Param(name="tempo", description="進める/戻す時間（例: 1:45 / 40 / 0:30）")
+            position: str = commands.Param(name="time", description="進める/戻す時間（例: 1:45 / 40 / 0:30）")
     ):
 
         try:
@@ -2817,7 +2817,7 @@ class Music(commands.Cog):
     async def loop_amount(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            value: int = commands.Param(name="valor", description="リピート回数。")
+            value: int = commands.Param(name="value", description="リピート回数。")
     ):
 
         try:
@@ -2866,9 +2866,9 @@ class Music(commands.Cog):
     async def remove(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            query: str = commands.Param(name="nome", description="曲の完全な名前。"),
+            query: str = commands.Param(name="name", description="曲の完全な名前。"),
             case_sensitive: bool = commands.Param(
-                name="nome_exato", default=False,
+                name="exact_name", default=False,
                 description="単語ごとではなく、曲名の完全一致フレーズで検索します。",
 
             )
@@ -2980,9 +2980,9 @@ class Music(commands.Cog):
     async def rotate(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            query: str = commands.Param(name="nome", description="曲の完全な名前。"),
+            query: str = commands.Param(name="name", description="曲の完全な名前。"),
             case_sensitive: bool = commands.Param(
-                name="nome_exato", default=False,
+                name="exact_name", default=False,
                 description="単語ごとではなく、曲名の完全一致フレーズで検索します。",
             )
     ):
@@ -3436,7 +3436,7 @@ class Music(commands.Cog):
     async def add_dj(
             self,
             inter: disnake.ApplicationCommandInteraction, *,
-            user: disnake.User = commands.Param(name="membro", description="追加するメンバー。")
+            user: disnake.User = commands.Param(name="member", description="追加するメンバー。")
     ):
 
         error_text = None
@@ -3490,7 +3490,7 @@ class Music(commands.Cog):
     async def remove_dj(
             self,
             inter: disnake.ApplicationCommandInteraction, *,
-            user: disnake.User = commands.Param(name="membro", description="削除するメンバー。")
+            user: disnake.User = commands.Param(name="member", description="削除するメンバー。")
     ):
 
         try:
@@ -3904,7 +3904,7 @@ class Music(commands.Cog):
     async def clear(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            song_name: str = commands.Param(name="nome", description="曲名に含まれる名前を指定。",
+            song_name: str = commands.Param(name="name", description="曲名に含まれる名前を指定。",
                                             default=None),
             song_author: str = commands.Param(name="uploader",
                                               description="曲のアップローダー/アーティスト名に含まれる名前を指定。",
@@ -3912,24 +3912,24 @@ class Music(commands.Cog):
             user: disnake.Member = commands.Param(name='membro',
                                                   description="選択したメンバーがリクエストした曲を含める。",
                                                   default=None),
-            duplicates: bool = commands.Param(name="duplicados", description="重複した曲を含める",
+            duplicates: bool = commands.Param(name="duplicates", description="重複した曲を含める",
                                               default=False),
             playlist: str = commands.Param(description="プレイリスト名に含まれる名前を指定。", default=None),
-            min_duration: str = commands.Param(name="duração_inicial",
+            min_duration: str = commands.Param(name="min_duration",
                                                description="指定した再生時間以上の曲を含める（例: 1:23）。",
                                                default=None),
-            max_duration: str = commands.Param(name="duração_máxima",
+            max_duration: str = commands.Param(name="max_duration",
                                                description="指定した最大再生時間の曲を含める（例: 1:45）。",
                                                default=None),
-            amount: int = commands.Param(name="quantidade", description="移動する曲の数。",
+            amount: int = commands.Param(name="amount", description="移動する曲の数。",
                                          min_value=0, max_value=99, default=None),
-            range_start: int = commands.Param(name="posição_inicial",
+            range_start: int = commands.Param(name="start_position",
                                               description="指定した位置からキューの曲を含める。",
                                               min_value=1.0, max_value=500.0, default=0),
-            range_end: int = commands.Param(name="posição_final",
+            range_end: int = commands.Param(name="end_position",
                                             description="指定した位置までキューの曲を含める。",
                                             min_value=1.0, max_value=500.0, default=0),
-            absent_members: bool = commands.Param(name="membros_ausentes",
+            absent_members: bool = commands.Param(name="absent_members",
                                                   description="チャンネルから退出したメンバーが追加した曲を含める。",
                                                   default=False)
     ):
@@ -4208,9 +4208,9 @@ class Music(commands.Cog):
     async def move(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            song_name: str = commands.Param(name="nome", description="曲名に含まれる名前を指定。",
+            song_name: str = commands.Param(name="name", description="曲名に含まれる名前を指定。",
                                             default=None),
-            position: int = commands.Param(name="posição", description="キュー内の移動先の位置（任意）。",
+            position: int = commands.Param(name="position", description="キュー内の移動先の位置（任意）。",
                                            min_value=1, max_value=900, default=1),
             song_author: str = commands.Param(name="uploader",
                                               description="曲のアップローダー/アーティスト名に含まれる名前を指定。",
@@ -4218,24 +4218,24 @@ class Music(commands.Cog):
             user: disnake.Member = commands.Param(name='membro',
                                                   description="選択したメンバーがリクエストした曲を含める。",
                                                   default=None),
-            duplicates: bool = commands.Param(name="duplicados", description="重複した曲を含める",
+            duplicates: bool = commands.Param(name="duplicates", description="重複した曲を含める",
                                               default=False),
             playlist: str = commands.Param(description="プレイリスト名に含まれる名前を指定。", default=None),
-            min_duration: str = commands.Param(name="duração_inicial",
+            min_duration: str = commands.Param(name="min_duration",
                                                description="指定した再生時間以上の曲を含める（例: 1:23）。",
                                                default=None),
-            max_duration: str = commands.Param(name="duração_máxima",
+            max_duration: str = commands.Param(name="max_duration",
                                                description="指定した最大再生時間の曲を含める（例: 1:45）。",
                                                default=None),
-            amount: int = commands.Param(name="quantidade", description="移動する曲の数。",
+            amount: int = commands.Param(name="amount", description="移動する曲の数。",
                                          min_value=0, max_value=99, default=None),
-            range_start: int = commands.Param(name="posição_inicial",
+            range_start: int = commands.Param(name="start_position",
                                               description="指定した位置からキューの曲を含める。",
                                               min_value=1.0, max_value=500.0, default=0),
-            range_end: int = commands.Param(name="posição_final",
+            range_end: int = commands.Param(name="end_position",
                                             description="指定した位置までキューの曲を含める。",
                                             min_value=1.0, max_value=500.0, default=0),
-            absent_members: bool = commands.Param(name="membros_ausentes",
+            absent_members: bool = commands.Param(name="absent_members",
                                                   description="チャンネルから退出したメンバーが追加した曲を含める。",
                                                   default=False),
     ):
@@ -4762,7 +4762,7 @@ class Music(commands.Cog):
     async def change_node(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            node: str = commands.Param(name="servidor", description="音楽サーバー")
+            node: str = commands.Param(name="server", description="音楽サーバー")
     ):
 
         try:
