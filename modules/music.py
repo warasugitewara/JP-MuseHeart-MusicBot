@@ -269,7 +269,7 @@ class Music(commands.Cog):
             manual_bot_choice=manual_bot_choice
         )
 
-    @search.autocomplete("busca")
+    @search.autocomplete("search")
     async def search_autocomplete(self, inter: disnake.Interaction, current: str):
 
         if not current:
@@ -2062,7 +2062,7 @@ class Music(commands.Cog):
         await self.process_music(inter=inter, force_play=force_play, ephemeral=ephemeral, user_data=user_data, player=player,
                                  log_text=log_text, emoji=emoji, warn_message=warn_message, reg_query=reg_query)
 
-    @play.autocomplete("busca")
+    @play.autocomplete("search")
     async def fav_add_autocomplete(self, inter: disnake.Interaction, query: str):
 
         if not self.bot.is_ready() or URL_REG.match(query) or URL_REG.match(query):
@@ -2640,7 +2640,7 @@ class Music(commands.Cog):
         await player.update_stage_topic()
         await player.process_rpc()
 
-    @seek.autocomplete("tempo")
+    @seek.autocomplete("time")
     async def seek_suggestions(self, inter: disnake.Interaction, query: str):
 
         try:
@@ -4534,11 +4534,11 @@ class Music(commands.Cog):
         return list(set([track.playlist_name for track in player.queue if track.playlist_name and
                          query.lower() in track.playlist_name.lower()]))[:20]
 
-    @rotate.autocomplete("nome")
-    @move.autocomplete("nome")
-    @skip.autocomplete("nome")
-    @skipto.autocomplete("nome")
-    @remove.autocomplete("nome")
+    @rotate.autocomplete("name")
+    @move.autocomplete("name")
+    @skip.autocomplete("name")
+    @skipto.autocomplete("name")
+    @remove.autocomplete("name")
     async def queue_tracks(self, inter: disnake.ApplicationCommandInteraction, query: str):
 
         try:
@@ -4804,7 +4804,7 @@ class Music(commands.Cog):
 
     @search.autocomplete("server")
     @play.autocomplete("server")
-    @change_node.autocomplete("servidor")
+    @change_node.autocomplete("server")
     async def node_suggestions(self, inter: disnake.Interaction, query: str):
 
         if not self.bot.bot_ready or not self.bot.is_ready():
