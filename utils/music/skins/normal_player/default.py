@@ -60,7 +60,7 @@ class DefaultSkin:
 
         player.mini_queue_feature = True
 
-        duration = "> -# 🔴 **⠂** `Livestream`\n" if player.current.is_stream else \
+        duration = "> -# 🔴 **⠂** `ライブ配信`\n" if player.current.is_stream else \
             (f"> -# ⏰ **⠂** `{time_format(player.current.duration)} [`" +
             f"<t:{int((disnake.utils.utcnow() + datetime.timedelta(milliseconds=player.current.duration - player.position)).timestamp())}:R>`]`\n"
             if not player.paused else '')
@@ -112,7 +112,7 @@ class DefaultSkin:
             if len(player.queue):
 
                 queue_txt = "\n".join(
-                    f"-# `{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 Livestream'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
+                    f"-# `{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
                     for n, t in (enumerate(itertools.islice(player.queue, 3)))
                 )
 
@@ -133,7 +133,7 @@ class DefaultSkin:
 
             elif len(player.queue_autoplay):
                 queue_txt = "\n".join(
-                    f"-# `👍⠂{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 Livestream'}]` [`{fix_characters(t.title, 20)}`]({t.uri})"
+                    f"-# `👍⠂{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'}]` [`{fix_characters(t.title, 20)}`]({t.uri})"
                     for n, t in (enumerate(itertools.islice(player.queue_autoplay, 3)))
                 )
                 embed_queue = disnake.Embed(title="次のおすすめ曲:", color=color,
@@ -173,7 +173,7 @@ class DefaultSkin:
                         description="現在の曲を最初から再生します。"
                     ),
                     disnake.SelectOption(
-                        label=f"Volume: {player.volume}%", emoji="🔊",
+                        label=f"音量: {player.volume}%", emoji="🔊",
                         value=PlayerControls.volume,
                         description="音量を調整します。"
                     ),

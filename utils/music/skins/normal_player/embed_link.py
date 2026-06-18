@@ -38,7 +38,7 @@ class EmbedLinkSkin:
             txt += f"> -# `💡` **⠂ヒント:** `{player.current_hint}`"
 
         if player.current.is_stream:
-            duration_txt = f"\n> -# `🔴` **⠂再生時間:** `Livestream`"
+            duration_txt = f"\n> -# `🔴` **⠂再生時間:** `ライブ配信`"
         else:
             duration_txt = f"\n> -# `⏰` **⠂再生時間:** `{time_format(player.current.duration)}`"
 
@@ -99,7 +99,7 @@ class EmbedLinkSkin:
                         description="現在の曲を最初から再生します。"
                     ),
                     disnake.SelectOption(
-                        label=f"Volume: {player.volume}%", emoji="🔊",
+                        label=f"音量: {player.volume}%", emoji="🔊",
                         value=PlayerControls.volume,
                         description="音量を調整します。"
                     ),

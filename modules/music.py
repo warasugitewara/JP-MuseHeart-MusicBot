@@ -240,7 +240,7 @@ class Music(commands.Cog):
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
             options: str = commands.Param(name="opções", description="プレイリスト処理オプション",
@@ -252,7 +252,7 @@ class Music(commands.Cog):
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
     ):
@@ -540,7 +540,7 @@ class Music(commands.Cog):
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
             server: str = commands.Param(name="server", desc="検索に特定の音楽サーバーを使用します。",
@@ -550,7 +550,7 @@ class Music(commands.Cog):
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
     ):
@@ -614,7 +614,7 @@ class Music(commands.Cog):
                 description="曲をすぐに再生します（キューに追加する代わりに）。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
             mix: str = commands.Param(
@@ -622,7 +622,7 @@ class Music(commands.Cog):
                 description="指定したアーティスト名-曲名に基づいておすすめの曲を再生します",
                 default=False,
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
             manual_selection: bool = commands.Param(name="selecionar_manualmente",
@@ -637,7 +637,7 @@ class Music(commands.Cog):
                 description="利用可能なボットを手動で選択します。",
                 default="no",
                 choices=[
-                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"),
+                    disnake.OptionChoice(disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"),
                 ]
             ),
     ):
@@ -913,7 +913,7 @@ class Music(commands.Cog):
             txt = "### `[⭐] お気に入り [⭐]`\n"
 
             if user_data["fav_links"]:
-                opts.append(disnake.SelectOption(label="お気に入りを使用", value=">> [⭐ Favoritos ⭐] <<", emoji="⭐"))
+                opts.append(disnake.SelectOption(label="お気に入りを使用", value=">> [⭐ お気に入り ⭐] <<", emoji="⭐"))
                 txt += f"`お気に入りに追加した曲やプレイリストを再生します。`\n"
 
             else:
@@ -923,7 +923,7 @@ class Music(commands.Cog):
                    f"### `[💠] 連携 [💠]`\n"
 
             if user_data["integration_links"]:
-                opts.append(disnake.SelectOption(label="連携を使用", value=">> [💠 Integrações 💠] <<", emoji="💠"))
+                opts.append(disnake.SelectOption(label="連携を使用", value=">> [💠 連携 💠] <<", emoji="💠"))
                 txt += f"`連携リストからYouTubeチャンネル（または音楽プラットフォームのユーザープロフィール）の公開プレイリストを再生します。`\n"
 
             else:
@@ -935,7 +935,7 @@ class Music(commands.Cog):
 
             if os.path.isfile(f"./local_database/saved_queues_v1/users/{inter.author.id}.pkl"):
                 txt += f"`コマンド` {savequeue_slashcmd} `で保存した曲のキューを使用します。`\n"
-                opts.append(disnake.SelectOption(label="保存済みキューを使用", value=">> [💾 Fila Salva 💾] <<", emoji="💾"))
+                opts.append(disnake.SelectOption(label="保存済みキューを使用", value=">> [💾 保存済みキュー 💾] <<", emoji="💾"))
 
             else:
                 txt += "`保存済みの曲のキューがありません`\n" \
@@ -944,7 +944,7 @@ class Music(commands.Cog):
             if user_data["last_tracks"]:
                 txt += "### `[📑] 最近の曲 [📑]`\n" \
                     "`最近聴いた/追加した曲を再生します。`\n"
-                opts.append(disnake.SelectOption(label="最近の曲を追加", value=">> [📑 Músicas recentes 📑] <<", emoji="📑"))
+                opts.append(disnake.SelectOption(label="最近の曲を追加", value=">> [📑 最近の曲 📑] <<", emoji="📑"))
                 
             if isinstance(inter, disnake.MessageInteraction) and not inter.response.is_done():
                 await inter.response.defer(ephemeral=ephemeral)
@@ -955,7 +955,7 @@ class Music(commands.Cog):
             if guild_data["player_controller"]["fav_links"]:
                 txt += "### `[📌] サーバーのお気に入り [📌]`\n" \
                         "`サーバーのお気に入りを使用します（サーバースタッフが追加）。`\n"
-                opts.append(disnake.SelectOption(label="サーバーのお気に入りを使用", value=">> [📌 Favoritos do servidor 📌] <<", emoji="📌"))
+                opts.append(disnake.SelectOption(label="サーバーのお気に入りを使用", value=">> [📌 サーバーのお気に入り 📌] <<", emoji="📌"))
 
             if not opts:
                 raise EmptyFavIntegration()
@@ -1033,7 +1033,7 @@ class Music(commands.Cog):
         menu = None
         selected_title = ""
 
-        if query.startswith(">> [💠 Integrações 💠] <<"):
+        if query.startswith(">> [💠 連携 💠] <<"):
             query = ""
             menu = "integrations"
             for k, v in user_data["integration_links"].items():
@@ -1050,16 +1050,16 @@ class Music(commands.Cog):
 
                 emoji, platform = music_source_emoji_url(v["url"])
 
-                fav_opts.append({"url": v["url"], "option": disnake.SelectOption(label=fix_characters(k[6:], 45), value=f"> itg: {k}", description=f"[💠 Integração 💠] -> {platform}", emoji=emoji)})
+                fav_opts.append({"url": v["url"], "option": disnake.SelectOption(label=fix_characters(k[6:], 45), value=f"> itg: {k}", description=f"[💠 連携 💠] -> {platform}", emoji=emoji)})
 
-        elif query.startswith(">> [⭐ Favoritos ⭐] <<"):
+        elif query.startswith(">> [⭐ お気に入り ⭐] <<"):
             query = ""
             menu = "favs"
             for k, v in user_data["fav_links"].items():
                 emoji, platform = music_source_emoji_url(v)
-                fav_opts.append({"url": v, "option": disnake.SelectOption(label=fix_characters(k, 45), value=f"> fav: {k}", description=f"[⭐ Favorito ⭐] -> {platform}", emoji=emoji)})
+                fav_opts.append({"url": v, "option": disnake.SelectOption(label=fix_characters(k, 45), value=f"> fav: {k}", description=f"[⭐ お気に入り ⭐] -> {platform}", emoji=emoji)})
 
-        elif query.startswith(">> [📑 Músicas recentes 📑] <<"):
+        elif query.startswith(">> [📑 最近の曲 📑] <<"):
 
             if not user_data["last_tracks"]:
                 raise GenericError("**履歴に曲が登録されていません...**\n"
@@ -1069,10 +1069,10 @@ class Music(commands.Cog):
             menu = "latest"
             for i, d in enumerate(user_data["last_tracks"]):
                 fav_opts.append({"url": d["url"], "option": disnake.SelectOption(label=d["name"], value=f"> lst: {i}",
-                                                                                 description="[📑 Músicas recentes 📑]",
+                                                                                 description="[📑 最近の曲 📑]",
                                                      emoji=music_source_emoji_url(d["url"])[0])})
 
-        elif query.startswith(">> [📌 Favoritos do servidor 📌] <<"):
+        elif query.startswith(">> [📌 サーバーのお気に入り 📌] <<"):
 
             if not guild_data:
                 guild_data = await bot.get_data(guild.id, db_name=DBModel.guilds)
@@ -1083,7 +1083,7 @@ class Music(commands.Cog):
             menu = "guild_favs"
             
             for name, v in guild_data["player_controller"]["fav_links"].items():
-                fav_opts.append({"url": v["url"], "option": disnake.SelectOption(label=fix_characters(name, 45), value=f"> pin: {name}", description="[📌 Favorito do servidor 📌]", emoji=music_source_emoji_url(v['url'])[0])})
+                fav_opts.append({"url": v["url"], "option": disnake.SelectOption(label=fix_characters(name, 45), value=f"> pin: {name}", description="[📌 サーバーのお気に入り 📌]", emoji=music_source_emoji_url(v['url'])[0])})
 
             is_pin = False
 
@@ -1413,7 +1413,7 @@ class Music(commands.Cog):
 
             source = False
 
-        if query.startswith(">> [💾 Fila Salva 💾] <<"):
+        if query.startswith(">> [💾 保存済みキュー 💾] <<"):
 
             try:
                 async with aiofiles.open(f"./local_database/saved_queues_v1/users/{inter.author.id}.pkl", 'rb') as f:
@@ -1769,7 +1769,7 @@ class Music(commands.Cog):
                     player.queue.insert(position, tracks)
                     pos_txt = f" キューの位置 {position + 1}"
 
-                duration = time_format(tracks.duration) if not tracks.is_stream else '🔴 Livestream'
+                duration = time_format(tracks.duration) if not tracks.is_stream else '🔴 ライブ配信'
 
                 if not track_url:
                     track_url = tracks.uri or tracks.search_uri
@@ -1784,7 +1784,7 @@ class Music(commands.Cog):
                     icon_url=music_source_image(tracks.info['sourceName'])
                 )
                 embed.set_thumbnail(url=tracks.thumb)
-                embed.description = f"`{fix_characters(tracks.author, 15)}`**┃**`{time_format(tracks.duration) if not tracks.is_stream else '🔴 Livestream'}`**┃**{inter.author.mention}"
+                embed.description = f"`{fix_characters(tracks.author, 15)}`**┃**`{time_format(tracks.duration) if not tracks.is_stream else '🔴 ライブ配信'}`**┃**{inter.author.mention}"
                 emoji = "🎵"
                 if reg_query is not None and tracks.uri:
                     reg_query = {"name": tracks.title, "url": tracks.uri}
@@ -2068,10 +2068,10 @@ class Music(commands.Cog):
         if not self.bot.is_ready() or URL_REG.match(query) or URL_REG.match(query):
             return [query] if len(query) < 100 else []
 
-        favs = [">> [⭐ Favoritos ⭐] <<", ">> [💠 Integrações 💠] <<", ">> [📌 Favoritos do servidor 📌] <<"]
+        favs = [">> [⭐ お気に入り ⭐] <<", ">> [💠 連携 💠] <<", ">> [📌 サーバーのお気に入り 📌] <<"]
 
         if os.path.isfile(f"./local_database/saved_queues_v1/users/{inter.author.id}.pkl"):
-            favs.append(">> [💾 Fila Salva 💾] <<")
+            favs.append(">> [💾 保存済みキュー 💾] <<")
 
         if not inter.guild_id:
             try:
@@ -2164,10 +2164,10 @@ class Music(commands.Cog):
                 default=None,
             ),
             play_only: str = commands.Param(
-                name=disnake.Localized("play_only", data={disnake.Locale.pt_BR: "tocar_apenas"}),
+                name=disnake.Localized("play_only", data={disnake.Locale.pt_BR: "tocar_apenas", disnake.Locale.ja: "再生のみ"}),
                 choices=[
                     disnake.OptionChoice(
-                        disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim"}), "yes"
+                        disnake.Localized("Yes", data={disnake.Locale.pt_BR: "Sim", disnake.Locale.ja: "はい"}), "yes"
                     )
                 ],
                 description="曲をすぐに再生します（キューを回転させずに）",
@@ -2762,13 +2762,13 @@ class Music(commands.Cog):
                 name="modo",
                 choices=[
                     disnake.OptionChoice(
-                        disnake.Localized("Current", data={disnake.Locale.pt_BR: "Música Atual"}), "current"
+                        disnake.Localized("Current", data={disnake.Locale.pt_BR: "Música Atual", disnake.Locale.ja: "現在の曲"}), "current"
                     ),
                     disnake.OptionChoice(
-                        disnake.Localized("Queue", data={disnake.Locale.pt_BR: "Fila"}), "queue"
+                        disnake.Localized("Queue", data={disnake.Locale.pt_BR: "Fila", disnake.Locale.ja: "キュー"}), "queue"
                     ),
                     disnake.OptionChoice(
-                        disnake.Localized("Off", data={disnake.Locale.pt_BR: "Desativar"}), "off"
+                        disnake.Localized("Off", data={disnake.Locale.pt_BR: "Desativar", disnake.Locale.ja: "オフ"}), "off"
                     ),
                 ]
             )
@@ -3411,7 +3411,7 @@ class Music(commands.Cog):
     @is_dj()
     @has_player()
     @check_voice()
-    @commands.user_command(name=disnake.Localized("Add DJ", data={disnake.Locale.pt_BR: "Adicionar DJ"}),
+    @commands.user_command(name=disnake.Localized("Add DJ", data={disnake.Locale.pt_BR: "Adicionar DJ", disnake.Locale.ja: "DJを追加"}),
                            extras={"only_voiced": True})
     async def adddj_u(self, inter: disnake.UserCommandInteraction):
         await self.add_dj(interaction=inter, user=inter.target)
@@ -4849,7 +4849,7 @@ class Music(commands.Cog):
 
         await ctx.reply(
             embed=disnake.Embed(
-                title="**Player Uptime:**",
+                title="**プレイヤー稼働時間:**",
                 description="\n-----\n".join(uptime_info),
                 color=self.bot.get_color(ctx.guild.me)
             ), fail_if_not_exists=False
@@ -6009,7 +6009,7 @@ class Music(commands.Cog):
                 if selected_fav:
                     multichoice_opts.append(
                         disnake.SelectOption(
-                            label="Favorito:",
+                            label="お気に入り:",
                             emoji="⭐",
                             description=fix_characters(selected_fav[6:], 45),
                             value="music_fav"
@@ -6019,7 +6019,7 @@ class Music(commands.Cog):
                 if selected_integration:
                     multichoice_opts.append(
                         disnake.SelectOption(
-                            label="Integração:",
+                            label="連携:",
                             emoji="💠",
                             description=fix_characters(selected_integration[13:], 45),
                             value="music_integration"

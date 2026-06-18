@@ -2429,7 +2429,7 @@ class LavalinkPlayer(wavelink.Player):
                 .replace("{track.title}", self.current.single_title) \
                 .replace("{track.author}", self.current.authors_string) \
                 .replace("{track.duration}",
-                         time_format(self.current.duration) if not self.current.is_stream else "Livestream") \
+                         time_format(self.current.duration) if not self.current.is_stream else "ライブ配信") \
                 .replace("{track.source}", self.current.info.get("sourceName", "不明")) \
                 .replace("{track.playlist}", self.current.playlist_name or "プレイリストなし") \
                 .replace("{requester.name}", requester_name) \

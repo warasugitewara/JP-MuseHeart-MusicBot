@@ -69,7 +69,7 @@ class MiniSkin:
             except:
                 embed.description += "` [おすすめ]`"
 
-        duration = "🔴 Livestream" if player.current.is_stream else \
+        duration = "🔴 ライブ配信" if player.current.is_stream else \
             time_format(player.current.duration)
 
         embed.add_field(name="⏰ **⠂再生時間:**", value=f"```ansi\n[34;1m{duration}[0m\n```")
@@ -88,7 +88,7 @@ class MiniSkin:
                 embed_queue = disnake.Embed(
                     color=embed_color,
                     description="\n".join(
-                        f"`{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 Livestream'}]` [`{fix_characters(t.title, 38)}`]({t.uri})"
+                        f"`{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'}]` [`{fix_characters(t.title, 38)}`]({t.uri})"
                         for n, t in (enumerate(itertools.islice(player.queue, 5)))
                     )
                 )
@@ -129,7 +129,7 @@ class MiniSkin:
                         description="現在の曲を最初から再生します。"
                     ),
                     disnake.SelectOption(
-                        label=f"Volume: {player.volume}%", emoji="🔊",
+                        label=f"音量: {player.volume}%", emoji="🔊",
                         value=PlayerControls.volume,
                         description="音量を調整します。"
                     ),

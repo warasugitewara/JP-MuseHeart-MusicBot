@@ -22,7 +22,7 @@ class Minimalist:
 
     def load(self, player: LavalinkPlayer) -> dict:
 
-        duration = "🔴 Livestream" if player.current.is_stream else \
+        duration = "🔴 ライブ配信" if player.current.is_stream else \
             time_format(player.current.duration)
 
         data = {

@@ -55,7 +55,7 @@ class DefaultProgressbarSkin:
             )
 
         if player.current.is_stream:
-            duration = "```ansi\n🔴 [31;1m Livestream[0m```"
+            duration = "```ansi\n🔴 [31;1m ライブ配信[0m```"
         else:
 
             progress = ProgressBar(
@@ -119,7 +119,7 @@ class DefaultProgressbarSkin:
             if qlenght:
 
                 queue_txt = "\n".join(
-                    f"`{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 Livestream'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
+                    f"`{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
                     for n, t in (enumerate(itertools.islice(player.queue, 3)))
                 )
 
@@ -141,7 +141,7 @@ class DefaultProgressbarSkin:
 
             elif len(player.queue_autoplay):
                 queue_txt = "\n".join(
-                    f"`👍⠂{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 Livestream'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
+                    f"`👍⠂{(n + 1):02}) [{time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'}]` [`{fix_characters(t.title, 21)}`]({t.uri})"
                     for n, t in (enumerate(itertools.islice(player.queue_autoplay, 3)))
                 )
                 embed_queue = disnake.Embed(title="次のおすすめ曲:", color=player.bot.get_color(player.guild.me),
@@ -181,7 +181,7 @@ class DefaultProgressbarSkin:
                         description="現在の曲を最初から再生します。"
                     ),
                     disnake.SelectOption(
-                        label=f"Volume: {player.volume}%", emoji="🔊",
+                        label=f"音量: {player.volume}%", emoji="🔊",
                         value=PlayerControls.volume,
                         description="音量を調整します。"
                     ),

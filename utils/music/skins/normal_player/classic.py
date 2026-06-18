@@ -61,7 +61,7 @@ class ClassicSkin:
             )
 
         if player.current.is_stream:
-            duration = "🔴 **⠂ `Livestream`"
+            duration = "🔴 **⠂ `ライブ配信`"
         else:
             duration = f"⏰ **⠂** `{time_format(player.current.duration)}`"
 
@@ -86,7 +86,7 @@ class ClassicSkin:
                 txt += f"🎶 **⠂** `キューに{qsize}曲あります`\n"
             else:
                 queue_txt += "```ansi\n[0;33m次の曲:[0m```" + "\n".join(
-                    f"`{(n + 1):02}) [{time_format(t.duration) if t.duration else '🔴 Livestream'}]` "
+                    f"`{(n + 1):02}) [{time_format(t.duration) if t.duration else '🔴 ライブ配信'}]` "
                     f"[`{fix_characters(t.title, 29)}`]({t.uri})" for n, t in
                     enumerate(itertools.islice(player.queue, 3))
                 )
@@ -96,7 +96,7 @@ class ClassicSkin:
 
         elif len(player.queue_autoplay):
             queue_txt += "```ansi\n[0;33m次の曲:[0m```" + "\n".join(
-                f"`👍⠂{(n + 1):02}) [{time_format(t.duration) if t.duration else '🔴 Livestream'}]` "
+                f"`👍⠂{(n + 1):02}) [{time_format(t.duration) if t.duration else '🔴 ライブ配信'}]` "
                 f"[`{fix_characters(t.title, 29)}`]({t.uri})" for n, t in
                 enumerate(itertools.islice(player.queue_autoplay, 3))
             )

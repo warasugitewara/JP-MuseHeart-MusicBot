@@ -31,7 +31,7 @@ class LiteSkin:
 
         embed = disnake.Embed(color=player.bot.get_color(player.guild.me))
 
-        duration = "`🔴 Livestream`" if player.current.is_stream else \
+        duration = "`🔴 ライブ配信`" if player.current.is_stream else \
             time_format(player.current.duration)
 
         embed.description = f"> -# ▶️ **┃**[`{fix_characters(player.current.title, 45)}`]({player.current.uri or player.current.search_uri})\n" \

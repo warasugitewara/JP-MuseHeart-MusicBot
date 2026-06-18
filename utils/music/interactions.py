@@ -242,7 +242,7 @@ class QueueInteraction(disnake.ui.View):
 
         for n, t in enumerate(self.track_pages[self.current_page]):
 
-            duration = time_format(t.duration) if not t.is_stream else '🔴 Livestream'
+            duration = time_format(t.duration) if not t.is_stream else '🔴 ライブ配信'
 
             index = (self.max_items*self.current_page) + n + 1
 
