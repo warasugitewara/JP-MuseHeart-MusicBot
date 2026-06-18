@@ -122,53 +122,6 @@ bash source_update.sh
 
 ---
 
-### クラウドサービスでのデプロイ
-
-<details>
-<summary>
-☁️ Render.com
-</summary>
-<br>
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/zRitsu/MuseHeart-MusicBot/tree/main)
-
-1. **TOKEN** にボットトークンを入力
-2. **DEFAULT_PREFIX** にプレフィックスを設定
-3. **SPOTIFY_CLIENT_ID** と **SPOTIFY_CLIENT_SECRET** を設定
-4. **MONGO** にMongoDBの接続URLを入力
-5. **Apply** をクリックしてデプロイ開始（約13分以上かかります）
-
-</details>
-
-<details>
-<summary>
-💻 Gitpod
-</summary>
-<br>
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/zRitsu/MuseHeart-MusicBot)
-
-1. `.env` ファイルを開き、ボットトークンとMongoDB URLを設定
-2. `main.py` を右クリック → **Run Python File in Terminal**
-
-**注意事項:**
-- 電話番号による認証が必要です
-- [Workspaces](https://gitpod.io/workspaces) で **pin** をクリックして14日間の削除を防止
-- 無料プランには制限があります（[詳細](https://www.gitpod.io/pricing)）
-
-</details>
-
-<details>
-<summary>
-🔄 Repl.it
-</summary>
-
-[セットアップガイド（画像付き）](https://gist.github.com/zRitsu/70737984cbe163f890dae05a80a3ddbe)
-
-</details>
-
----
-
 ## 💓 Uptime Kuma 監視（オプション）
 
 [Uptime Kuma](https://github.com/louislam/uptime-kuma) の Push モニターを使ってボットの死活監視ができます。
