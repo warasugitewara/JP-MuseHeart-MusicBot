@@ -76,7 +76,7 @@ class YTDLTools:
 
             try:
                 if data["_type"] == "playlist":
-                    raise GenericError("**No momento não há suporte para playlists com o link fornecido...**")
+                    raise GenericError("**現在、指定されたリンクのプレイリストはサポートされていません...**")
             except KeyError:
                 pass
 

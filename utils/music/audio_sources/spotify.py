@@ -37,12 +37,12 @@ class SpotifyClient:
 
         if not client_id:
             raise Exception(
-                "CLIENT_ID do spotify não informado."
+                "SpotifyのCLIENT_IDが指定されていません。"
             )
 
         if not client_secret:
             raise Exception(
-                "CLIENT_SECRET do spotify não informado."
+                "SpotifyのCLIENT_SECRETが指定されていません。"
             )
 
         self.client_id = client_id
@@ -75,11 +75,11 @@ class SpotifyClient:
                     await self.get_access_token()
                     return await self.request(path=path, params=params)
                 elif response.status == 404:
-                    raise GenericError("**Não houve resultado para o link informado (confira se o link está correto ou se o conteúdo dele está privado ou se foi deletado).**\n\n"
+                    raise GenericError("**指定されたリンクの結果が見つかりませんでした（リンクが正しいか、コンテンツが非公開または削除されていないか確認してください）。**\n\n"
                                        f"{str(response.url).replace('api.', 'open.').replace('/v1/', '/').replace('s/', '/')}")
                 elif response.status == 429:
                     self.disabled = True
-                    print(f"⚠️ - Spotify: Suporte interno desativado devido a ratelimit (429).")
+                    print(f"⚠️ - Spotify: レート制限(429)により内部サポートを無効化しました。")
                     return
                 else:
                     response.raise_for_status()
@@ -174,11 +174,11 @@ class SpotifyClient:
 
                 self.type = "api"
 
-                self.spotify_cache["tyoe"] = "api"
+                self.spotify_cache["type"] = "api"
 
                 self.spotify_cache["expires_at"] = time.time() + self.spotify_cache["expires_in"]
 
-                print("🎶 - Access token do spotify obtido com sucesso via API Oficial.")
+                print("🎶 - Spotifyのアクセストークンを公式API経由で正常に取得しました。")
 
         except Exception as e:
             self.token_refresh = False
@@ -199,7 +199,7 @@ class SpotifyClient:
         if spotify_link_regex.match(query):
             async with bot.session.get(query, allow_redirects=False) as r:
                 if 'location' not in r.headers:
-                    raise GenericError("**Falha ao obter resultado para o link informado...**")
+                    raise GenericError("**指定されたリンクの結果を取得できませんでした...**")
                 query = str(r.headers["location"])
 
         if not (matches := spotify_regex.match(query)) and not self.disabled:
@@ -270,7 +270,7 @@ class SpotifyClient:
             if [n for n in bot.music.nodes.values() if "spotify" in n.info.get("sourceManagers", [])]:
                 return
 
-            raise GenericError("**O suporte a links do spotify está temporariamente desativado.**")
+            raise GenericError("**Spotifyリンクのサポートは一時的に無効になっています。**")
 
         url_type, url_id = matches.groups()
 
@@ -336,7 +336,7 @@ class SpotifyClient:
                 thumb = ""
 
             if result["tracks"] is None:
-                raise GenericError("**Não houve resultados para o link do álbum informado...**")
+                raise GenericError("**指定されたアルバムリンクに結果がありませんでした...**")
 
             if len(result["tracks"]) < 2:
 
@@ -414,15 +414,15 @@ class SpotifyClient:
             data["playlistInfo"]["thumb"] = result["images"][0]["url"]
 
             if result["tracks"]["items"] is None:
-                raise GenericError("**Não houve resultados para o link da playlist informada...**")
+                raise GenericError("**指定されたプレイリストリンクに結果がありませんでした...**")
 
             tracks_data = [t["track"] for t in result["tracks"]["items"]]
 
         else:
-            raise GenericError(f"**Link do spotify não reconhecido/suportado:**\n{query}")
+            raise GenericError(f"**認識できない/サポートされていないSpotifyリンクです:**\n{query}")
 
         if not tracks_data:
-            raise GenericError("**Não houve resultados para o link do spotify informado...**")
+            raise GenericError("**指定されたSpotifyリンクに結果がありませんでした...**")
 
         data["playlistInfo"]["selectedTrack"] = -1
         data["playlistInfo"]["type"] = url_type

@@ -116,7 +116,7 @@ class DeezerClient:
             async with ClientSession() as session:
                 async with session.get(url, allow_redirects=False) as r:
                     if 'location' not in r.headers:
-                        raise GenericError("**Falha ao obter resultado para o link informado...**")
+                        raise GenericError("**指定されたリンクの結果を取得できませんでした...**")
                     url = str(r.headers["location"])
 
         url_type, url_id = matches.groups()[-2:]
@@ -254,10 +254,10 @@ class DeezerClient:
             tracks_data = result["tracks"]["data"]
 
         else:
-            raise GenericError(f"**Link do deezer não reconhecido/suportado:**\n{url}")
+            raise GenericError(f"**認識できない/サポートされていないDeezerリンクです:**\n{url}")
 
         if not tracks_data:
-            raise GenericError("**Não houve resultados no link do deezer informado...**")
+            raise GenericError("**指定されたDeezerリンクに結果がありませんでした...**")
 
         data["playlistInfo"]["selectedTrack"] = -1
         data["playlistInfo"]["type"] = url_type
