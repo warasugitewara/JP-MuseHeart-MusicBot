@@ -2090,15 +2090,15 @@ class SetStageTitle(disnake.ui.View):
         '{requester.name}', '{requester.id}'
     )
 
-    placeholder_text = "```ansi\n[34;1m{track.title}[0m -> Nome da música\n" \
-               "[34;1m{track.author}[0m -> Nome do Artista/Uploader/Autor da música.\n" \
-               "[34;1m{track.duration}[0m -> Duração da música.\n" \
-               "[34;1m{track.timestamp}[0m -> Duração da música em contagem regressiva (apenas em canal de voz).\n" \
-               "[34;1m{track.source}[0m -> Origem/Fonte da música (Youtube/Spotify/Soundcloud etc)\n" \
-               "[34;1m{track.emoji}[0m -> Emoji da fonte de música (apenas em canal de voz).\n" \
-               "[34;1m{track.playlist}[0m -> Nome da playlist de origem da música (caso tenha)\n" \
-               "[34;1m{requester.name}[0m -> Nome/Nick do membro que pediu a música\n" \
-               "[34;1m{requester.id}[0m -> ID do membro que pediu a música```\n" \
+    placeholder_text = "```ansi\n[34;1m{track.title}[0m -> 曲名\n" \
+               "[34;1m{track.author}[0m -> アーティスト/投稿者/作者名\n" \
+               "[34;1m{track.duration}[0m -> 曲の長さ\n" \
+               "[34;1m{track.timestamp}[0m -> 曲の残り時間カウントダウン（ボイスチャンネルのみ）\n" \
+               "[34;1m{track.source}[0m -> 曲のソース（YouTube/Spotify/Soundcloud など）\n" \
+               "[34;1m{track.emoji}[0m -> 曲のソースの絵文字（ボイスチャンネルのみ）\n" \
+               "[34;1m{track.playlist}[0m -> 曲の元のプレイリスト名（ある場合）\n" \
+               "[34;1m{requester.name}[0m -> 曲をリクエストしたメンバーの名前/ニックネーム\n" \
+               "[34;1m{requester.id}[0m -> 曲をリクエストしたメンバーのID```\n" \
                "例: 再生中 {track.title} | 投稿者: {track.author}\n\n" \
                "`注意: ボイスチャンネルでは、ステータスメッセージにカスタム絵文字を使用できます（私がいないサーバーや、あなたがいないサーバーの絵文字も含む）。`"
 
