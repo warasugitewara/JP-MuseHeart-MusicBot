@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import os.path
 import traceback
 import uuid
@@ -258,7 +259,7 @@ class YtOauthLL(commands.Cog):
                 with open('./application.yml', 'w') as file:
                     yaml.dump(yml_data, file)
 
-                if (node := self.bot.music.nodes.get("LOCAL")) and "youtube-plugin" in node.info["plugins"]:
+                if (node := self.bot.music.nodes.get("LOCAL")) and self.has_youtube_plugin(node):
                     resp = await self.bot.session.post(
                         f"{node.rest_uri}/youtube", headers=node._websocket.headers,
                         json={"refreshToken": refresh_token}
@@ -285,6 +286,160 @@ class YtOauthLL(commands.Cog):
                         f"**メールアドレス:** ```ansi\n[34;1m{data['email']}[0m``` "
                         f"**備考:**\n" + "\n".join(f"* {t}" for t in txts)
         ).set_thumbnail(data["picture"]), view=None)
+
+    def has_youtube_plugin(self, node):
+        try:
+            return any(p.get("name") == "youtube-plugin" for p in node.info.get("plugins", []))
+        except Exception:
+            return False
+
+    async def generate_potoken(self):
+        """youtube-trusted-session-generatorを使ってpoToken/visitorDataを取得する。"""
+
+        from utils.music.youtube_trusted_session_generator import Browser
+
+        browser = Browser()
+
+        try:
+            # rootで実行している場合、chromiumのサンドボックスは使用できない。
+            sandbox = os.geteuid() != 0
+        except AttributeError:
+            sandbox = True
+
+        try:
+            await asyncio.wait_for(
+                browser.start(
+                    sandbox=sandbox,
+                    browser_executable_path=self.bot.config.get("POTOKEN_BROWSER_EXECUTABLE") or None,
+                    ytid=self.bot.config.get("POTOKEN_YTID") or "jNQXAC9IVRw"
+                ), timeout=180
+            )
+        except Exception:
+            if not browser.data:
+                raise
+            traceback.print_exc()
+
+        if not browser.data.get("po_token") or not browser.data.get("visitor_data"):
+            raise GenericError("**ブラウザからpoTokenを取得できませんでした。**")
+
+        return browser.data
+
+    def save_potoken_to_yml(self, po_token: str, visitor_data: str):
+
+        if not os.path.isfile("./application.yml"):
+            return False
+
+        yaml = ruamel.yaml.YAML()
+        yaml.preserve_quotes = True
+
+        with open("./application.yml", "r", encoding="utf-8") as file:
+            yml_data = yaml.load(file.read())
+
+        yml_data.setdefault("plugins", {}).setdefault("youtube", {})["pot"] = {
+            "token": po_token,
+            "visitorData": visitor_data
+        }
+
+        with open("./application.yml", "w", encoding="utf-8") as file:
+            yaml.dump(yml_data, file)
+
+        return True
+
+    @commands.is_owner()
+    @commands.max_concurrency(1, commands.BucketType.default)
+    @commands.command(
+        hidden=True, aliases=["potoken", "ytpot", "poToken"],
+        description="YouTubeのpoTokenを設定します（YouTubeがSABR応答を返して再生できない場合の対処）。"
+    )
+    async def ytpotoken(self, ctx: CustomContext, po_token: str = None, visitor_data: str = None):
+
+        if bool(po_token) != bool(visitor_data):
+            raise GenericError(
+                "**poTokenとvisitorDataは両方指定する必要があります。**\n"
+                f"```\n{ctx.prefix}{ctx.invoked_with} <poToken> <visitorData>```"
+            )
+
+        color = self.bot.get_color(ctx.guild.me)
+
+        msg = None
+
+        if not po_token:
+
+            msg = await ctx.send(embed=disnake.Embed(
+                color=color,
+                description="**ブラウザを起動してpoTokenを取得しています。最大3分ほどかかります...**"
+            ))
+
+            try:
+                data = await self.generate_potoken()
+            except Exception as e:
+                traceback.print_exc()
+                raise GenericError(
+                    f"**poTokenの自動取得に失敗しました:** `{repr(e)[:200]}`\n\n"
+                    "サーバーにChromium/Google Chromeや表示環境が無い場合、自動取得は利用できません。\n"
+                    "別のPCで [youtube-trusted-session-generator](<https://github.com/iv-org/youtube-trusted-session-generator>) "
+                    "を実行して取得した値を、以下のように手動で指定してください:\n"
+                    f"```\n{ctx.prefix}{ctx.invoked_with} <poToken> <visitorData>```"
+                )
+
+            po_token = data["po_token"]
+            visitor_data = data["visitor_data"]
+
+        txts = []
+        applied_nodes = []
+        checked_uris = set()
+
+        for bot in self.bot.pool.get_all_bots():
+
+            for node in bot.music.nodes.values():
+
+                if node.rest_uri in checked_uris:
+                    continue
+
+                checked_uris.add(node.rest_uri)
+
+                if not self.has_youtube_plugin(node):
+                    continue
+
+                try:
+                    async with self.bot.session.post(
+                            f"{node.rest_uri}/youtube", headers=node._websocket.headers,
+                            json={"poToken": po_token, "visitorData": visitor_data}
+                    ) as resp:
+                        if resp.status != 204:
+                            txts.append(f"`{node.identifier}` への適用に失敗しました: `{resp.status} - {(await resp.text())[:100]}`")
+                        else:
+                            applied_nodes.append(node.identifier)
+                except Exception as e:
+                    txts.append(f"`{node.identifier}` への適用に失敗しました: `{repr(e)[:100]}`")
+
+        if applied_nodes:
+            txts.append("再起動なしで適用されたサーバー: " + ", ".join(f"`{n}`" for n in applied_nodes))
+        elif not txts:
+            txts.append("youtube-pluginを使用している音楽サーバーが見つかりませんでした。")
+
+        try:
+            if self.save_potoken_to_yml(po_token, visitor_data):
+                txts.append("application.ymlに保存しました（再起動後も維持されます）。")
+            else:
+                txts.append("application.ymlが見つからないため、保存されていません（再起動すると失われます）。")
+        except Exception as e:
+            traceback.print_exc()
+            txts.append(f"application.ymlへの保存に失敗しました: `{repr(e)[:100]}`")
+
+        embed = disnake.Embed(
+            color=color,
+            description="### poTokenを設定しました\n"
+                        f"**poToken:** ```\n{po_token[:80]}...``` "
+                        f"**visitorData:** ```\n{visitor_data[:80]}...``` "
+                        "**備考:**\n" + "\n".join(f"* {t}" for t in txts) +
+                        "\n\n-# poTokenには有効期限があります。再生できなくなった場合はこのコマンドを再実行してください。"
+        )
+
+        if msg:
+            await msg.edit(embed=embed)
+        else:
+            await ctx.send(embed=embed)
 
 def setup(bot: BotCore):
     bot.add_cog(YtOauthLL(bot))
