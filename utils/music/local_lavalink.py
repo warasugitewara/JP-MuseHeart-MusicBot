@@ -222,6 +222,21 @@ def update_youtube_plugin(youtube_plugin_version: str = None):
                 youtube_config["clients"] = list(DEFAULT_YOUTUBE_CLIENTS)
                 changed = True
 
+            oauth = youtube_config.get("oauth")
+
+            if oauth is not None and oauth.get("enabled") and \
+                    not str(oauth.get("refreshToken") or "").strip():
+                # refreshTokenが空のままoauthを有効にすると、youtube-sourceが
+                # デバイス認証のポーリングスレッドを起動し、HTTP 400を受け取るたびに
+                # 待機なしで再試行し続ける（pollForToken内のcatch節にsleepが無い）。
+                # YouTubeへ失敗リクエストを投げ続けてIPが制限される原因になるうえ、
+                # 連携が完了していないので再生の役にも立たないため無効化する。
+                oauth["enabled"] = False
+                oauth["skipInitialization"] = True
+                changed = True
+                print("🌋 - application.yml: refreshTokenが未設定のため、YouTubeのoauth連携を無効化しました "
+                      "（連携する場合はオーナー用コマンド ytoauth を使用してください）。")
+
             client_options = youtube_config.get("clientOptions")
 
             if client_options is not None:
