@@ -166,7 +166,11 @@ class Owner(commands.Cog):
                 os.remove("./Lavalink.jar")
 
             if args.yml and os.path.isfile("./application.yml"):
-                os.remove("./application.yml")
+                # 削除ではなくリネームすることで、再ダウンロード後にYouTubeの認証情報
+                # (oauthのrefreshToken / poToken) を引き継げるようにする。
+                if os.path.isfile("./application.yml.old"):
+                    os.remove("./application.yml.old")
+                os.rename("./application.yml", "./application.yml.old")
                 txt = "Lavalink.jarとapplication.ymlファイルが更新されます"
             else:
                 txt = "Lavalink.jarファイルが更新されます"

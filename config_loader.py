@@ -5,6 +5,8 @@ from os import environ
 import disnake
 from dotenv import dotenv_values
 
+from utils.music.local_lavalink import DEFAULT_YOUTUBE_PLUGIN_VERSION
+
 bools = {
     "true": True,
     "false": False,
@@ -101,6 +103,7 @@ DEFAULT_CONFIG = {
     "LAVALINK_RAM_LIMIT": 120,
     "LAVALINK_CPU_CORES": 2,
     "LAVALINK_FILE_URL": "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/Lavalink.jar",
+    "LAVALINK_YOUTUBE_PLUGIN_VERSION": DEFAULT_YOUTUBE_PLUGIN_VERSION,
     "SEARCH_PROVIDERS": "scsearch",
     "PREFER_YOUTUBE_NATIVE_PLAYBACK": True,
     "ONLY_USE_NATIVE_SEARCH_PROVIDERS": True,
