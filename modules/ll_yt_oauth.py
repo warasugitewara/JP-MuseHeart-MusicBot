@@ -348,7 +348,7 @@ class YtOauthLL(commands.Cog):
     @commands.is_owner()
     @commands.max_concurrency(1, commands.BucketType.default)
     @commands.command(
-        hidden=True, aliases=["potoken", "ytpot", "poToken"],
+        hidden=True, aliases=["potoken", "ytpot"],
         description="YouTubeのpoTokenを設定します（YouTubeがSABR応答を返して再生できない場合の対処）。"
     )
     async def ytpotoken(self, ctx: CustomContext, po_token: str = None, visitor_data: str = None):
