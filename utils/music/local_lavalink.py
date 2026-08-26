@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import glob
 import os
 import platform
+import re
 import shutil
 import subprocess
 import tempfile
@@ -9,6 +11,26 @@ import zipfile
 from contextlib import suppress
 
 import requests
+import ruamel.yaml
+
+# youtube-source（Lavalinkのyoutube-plugin）の既定バージョン。
+# YouTube側の仕様変更で古いバージョンは再生できなくなるため、application.ymlに
+# 記載されているバージョンが古い場合は起動時にこのバージョンへ書き換える。
+DEFAULT_YOUTUBE_PLUGIN_VERSION = "1.18.2"
+
+YOUTUBE_PLUGIN_DEPENDENCY_PREFIX = "dev.lavalink.youtube:youtube-plugin:"
+
+# youtube-sourceから削除されたクライアント（そのまま残すと読み込みに失敗する）と、
+# 代わりに使用するクライアント。
+REMOVED_YOUTUBE_CLIENTS = {
+    "TVHTML5EMBEDDED": "TVHTML5_SIMPLY",
+}
+
+DEFAULT_YOUTUBE_CLIENTS = ["MUSIC", "ANDROID_VR", "WEB", "WEBEMBEDDED", "TVHTML5_SIMPLY"]
+
+DEFAULT_YOUTUBE_CLIENT_OPTIONS = {
+    "TVHTML5_SIMPLY": {"playback": True, "playlistLoading": False},
+}
 
 
 def download_file(url, filename):
@@ -67,13 +89,180 @@ def validate_java(cmd: str, debug: bool = False):
             print(f"\nFalha ao obter versão do java...\n"
                   f"Path: {cmd} | Erro: {repr(e)}\n")
 
+def is_snapshot_version(version: str):
+    # リリース版は 1.18.2 のような数値のみ。それ以外（コミットハッシュ等）はスナップショット扱い。
+    return not re.fullmatch(r"\d+(\.\d+)+", version)
+
+
+def restore_youtube_credentials(yml_data: dict):
+    """application.ymlを再ダウンロードした際に、旧ファイルのYouTube認証情報
+    （oauthのrefreshTokenとpoToken）を引き継ぐ。"""
+
+    if not os.path.isfile("./application.yml.old"):
+        return False
+
+    changed = False
+
+    try:
+        yaml = ruamel.yaml.YAML()
+        yaml.preserve_quotes = True
+
+        with open("./application.yml.old", "r", encoding="utf-8") as f:
+            old_data = yaml.load(f.read()) or {}
+
+        old_youtube = (old_data.get("plugins") or {}).get("youtube") or {}
+
+        for key in ("oauth", "pot"):
+
+            old_value = old_youtube.get(key)
+
+            if not old_value:
+                continue
+
+            # 値が未設定（空文字のみ）の場合は引き継がない。
+            if not any(v for k, v in old_value.items() if k in ("refreshToken", "token", "visitorData")):
+                continue
+
+            yml_data.setdefault("plugins", {}).setdefault("youtube", {})[key] = old_value
+            changed = True
+            print(f"🌋 - 旧application.ymlからYouTubeの設定を引き継ぎました: plugins.youtube.{key}")
+
+    except Exception as e:
+        print(f"⚠️ - 旧application.ymlからのYouTube設定の引き継ぎに失敗しました: {repr(e)}")
+
+    with suppress(OSError):
+        os.remove("./application.yml.old")
+
+    return changed
+
+
+def update_youtube_plugin(youtube_plugin_version: str = None):
+    """application.yml内のyoutube-source（youtube-plugin）を指定バージョンへ更新し、
+    youtube-sourceから削除された古いクライアント名を修正する。
+
+    変更があった場合はTrueを返す（pluginsフォルダ内の旧jarを削除する必要がある）。
+    """
+
+    if not os.path.isfile("./application.yml"):
+        return False
+
+    version = (youtube_plugin_version or DEFAULT_YOUTUBE_PLUGIN_VERSION).strip()
+
+    if version.lower() in ("keep", "manual", "disabled", "false"):
+        # 手動でバージョンを固定したい場合は自動更新を行わない。
+        return False
+
+    if not version or version.lower() in ("auto", "latest", "default", "true"):
+        version = DEFAULT_YOUTUBE_PLUGIN_VERSION
+
+    try:
+        yaml = ruamel.yaml.YAML()
+        yaml.preserve_quotes = True
+
+        with open("./application.yml", "r", encoding="utf-8") as f:
+            yml_data = yaml.load(f.read())
+
+        if not yml_data:
+            return False
+
+        changed = restore_youtube_credentials(yml_data)
+        plugin_changed = False
+
+        dependency = f"{YOUTUBE_PLUGIN_DEPENDENCY_PREFIX}{version}"
+
+        plugins_list = (yml_data.get("lavalink") or {}).get("plugins")
+
+        if plugins_list is None:
+            plugins_list = []
+            yml_data.setdefault("lavalink", {})["plugins"] = plugins_list
+
+        current = None
+
+        for plugin in plugins_list:
+            if str(plugin.get("dependency", "")).startswith(YOUTUBE_PLUGIN_DEPENDENCY_PREFIX):
+                current = plugin
+                break
+
+        if current is None:
+            plugins_list.append({"dependency": dependency, "snapshot": is_snapshot_version(version)})
+            plugin_changed = True
+        elif current.get("dependency") != dependency:
+            print(f"🌋 - youtube-sourceプラグインを更新します: "
+                  f"{current.get('dependency')} -> {dependency}")
+            current["dependency"] = dependency
+            current["snapshot"] = is_snapshot_version(version)
+            plugin_changed = True
+
+        youtube_config = (yml_data.get("plugins") or {}).get("youtube")
+
+        if youtube_config is not None:
+
+            clients = youtube_config.get("clients")
+
+            if clients:
+
+                new_clients = []
+                clients_changed = False
+
+                for client in clients:
+                    replacement = REMOVED_YOUTUBE_CLIENTS.get(str(client).upper())
+                    if replacement:
+                        print(f"🌋 - application.yml: 廃止されたYouTubeクライアント {client} を "
+                              f"{replacement} に置き換えました。")
+                        client = replacement
+                        clients_changed = True
+                    if client not in new_clients:
+                        new_clients.append(client)
+
+                if clients_changed:
+                    clients[:] = new_clients
+                    changed = True
+
+            else:
+                youtube_config["clients"] = list(DEFAULT_YOUTUBE_CLIENTS)
+                changed = True
+
+            client_options = youtube_config.get("clientOptions")
+
+            if client_options is not None:
+                for client in list(client_options):
+                    if str(client).upper() in REMOVED_YOUTUBE_CLIENTS:
+                        del client_options[client]
+                        changed = True
+
+                for client, options in DEFAULT_YOUTUBE_CLIENT_OPTIONS.items():
+                    if client in youtube_config.get("clients", []) and client not in client_options:
+                        client_options[client] = dict(options)
+                        changed = True
+
+        if changed or plugin_changed:
+            with open("./application.yml", "w", encoding="utf-8") as f:
+                yaml.dump(yml_data, f)
+
+    except Exception as e:
+        print(f"⚠️ - application.ymlのyoutube-source設定の更新に失敗しました: {repr(e)}")
+        return False
+
+    return plugin_changed
+
+
+def clear_youtube_plugin_jars():
+    for filepath in glob.glob("./plugins/youtube-plugin*.jar"):
+        try:
+            os.remove(filepath)
+            print(f"🌋 - 旧youtube-sourceプラグインを削除しました: {filepath}")
+        except Exception as e:
+            print(f"⚠️ - 旧youtube-sourceプラグインの削除に失敗しました ({filepath}): {repr(e)}")
+
+
 def run_lavalink(
         lavalink_file_url: str = None,
         lavalink_initial_ram: int = 30,
         lavalink_ram_limit: int = 100,
         lavalink_additional_sleep: int = 0,
         lavalink_cpu_cores: int = 1,
-        use_jabba: bool = False
+        use_jabba: bool = False,
+        youtube_plugin_version: str = None
 ):
     arch, osname = platform.architecture()
     jdk_platform = f"{platform.system()}-{arch}-{osname}"
@@ -231,6 +420,11 @@ def run_lavalink(
     ):
         if download_file(url, filename):
             clear_plugins = True
+
+    if update_youtube_plugin(youtube_plugin_version) and not clear_plugins:
+        # youtube-sourceのバージョンが変わった場合は、Lavalinkが新しいバージョンを
+        # ダウンロードするように旧jarを削除する。
+        clear_youtube_plugin_jars()
 
     if lavalink_cpu_cores >= 1:
         java_cmd += f" -XX:ActiveProcessorCount={lavalink_cpu_cores}"
