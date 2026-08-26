@@ -19,6 +19,7 @@
 - 🔊 **マルチボイスチャンネル対応** - 複数のボイスチャンネルで同時再生可能
 - 📝 **Song Requestチャンネル** - 専用チャンネルでリクエスト管理
 - 💓 **Uptime Kuma 監視対応** - Push モニターでボットの死活監視が可能
+- 🔄 **YouTube再生プラグインの自動更新** - 起動時に youtube-source を指定バージョンへ追従
 
 ---
 
@@ -103,6 +104,7 @@ bash source_setup.sh
 | `SPOTIFY_CLIENT_ID` | Spotify Client ID |
 | `SPOTIFY_CLIENT_SECRET` | Spotify Client Secret |
 | `UPTIME_KUMA_PUSH_URL` | Uptime Kuma Push URL（省略可） |
+| `LAVALINK_YOUTUBE_PLUGIN_VERSION` | YouTube再生に使う youtube-source のバージョン（省略可） |
 
 **4. ボットの起動**
 
@@ -142,6 +144,52 @@ UPTIME_KUMA_PUSH_URL='https://status.example.com/api/push/xxxxxxxxxx?status=up&m
 
 ---
 
+## 🎬 YouTube再生について
+
+YouTubeは配信方式やクライアント判定を頻繁に変更するため、再生用プラグイン
+（[youtube-source](https://github.com/lavalink-devs/youtube-source)）が古いと再生できなくなります。
+
+このフォークでは、起動時に `application.yml` を自動的に調整します。
+
+- youtube-source の依存関係を `LAVALINK_YOUTUBE_PLUGIN_VERSION` の値へ書き換え、
+  バージョンが変わっていれば `plugins/` 内の旧jarを削除して再取得させる
+- youtube-source から廃止されたクライアント名を後継のものへ置き換える
+- `refreshToken` が空のまま oauth が有効になっている場合は無効化する
+  （YouTubeへ失敗リクエストを送り続け、IPが制限される原因になるため）
+
+再生できなくなった場合は、まず `.env` でプラグインのバージョンを上げて再起動してください。
+
+```env
+# リリース版を指定する場合
+LAVALINK_YOUTUBE_PLUGIN_VERSION='1.18.2'
+
+# mainブランチの修正が必要な場合はコミットハッシュを指定
+LAVALINK_YOUTUBE_PLUGIN_VERSION='f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3'
+```
+
+数字のみの値はリリース版、それ以外（コミットハッシュ等）はスナップショットとして扱われます。
+`keep` を指定すると自動更新を行わず、`application.yml` の内容をそのまま使用します。
+
+> 📌 現在の既定値はmainブランチのコミットハッシュです。最新リリースの 1.18.2 では、
+> YouTubeがSABR応答を返す環境で再生できない問題が未修正のためです。詳細は下記のドキュメントを参照してください。
+
+### 関連コマンド（ボットのオーナー専用）
+
+| コマンド | 説明 |
+|---|---|
+| `ytpotoken` | poToken を設定（`Sign in to confirm you're not a bot` が出る場合） |
+| `ytoauth` | Googleアカウントを連携して `TV` クライアントを有効化 |
+| `ull` | Lavalink.jar を更新して再起動（`-yml` で application.yml も再取得） |
+| `rll` | ローカルLavalinkを再起動 |
+
+> ⚠️ `ytoauth` はGoogleアカウントがBANされる可能性があります。
+> メインのアカウントではなく、使い捨てアカウントを使用してください。
+
+**再生できない場合の調査手順と過去の事例は
+[YouTube再生のトラブルシューティング](docs/youtube-playback-troubleshooting.md) にまとめています。**
+
+---
+
 ## ⚠️ 注意事項
 
 ### 使用について
@@ -157,6 +205,9 @@ UPTIME_KUMA_PUSH_URL='https://status.example.com/api/push/xxxxxxxxxx?status=up&m
 - 更新時に変更が失われる可能性があります
 
 ### 問題報告
+
+YouTubeが再生できない場合は、先に
+[YouTube再生のトラブルシューティング](docs/youtube-playback-troubleshooting.md) を確認してください。
 
 このフォーク固有の問題は [Issue](https://github.com/warasugitewara/JP-MuseHeart-MusicBot/issues) で報告してください。
 オリジナルボットの不具合は [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot/issues) へ。
