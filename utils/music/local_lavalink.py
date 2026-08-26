@@ -16,7 +16,13 @@ import ruamel.yaml
 # youtube-source（Lavalinkのyoutube-plugin）の既定バージョン。
 # YouTube側の仕様変更で古いバージョンは再生できなくなるため、application.ymlに
 # 記載されているバージョンが古い場合は起動時にこのバージョンへ書き換える。
-DEFAULT_YOUTUBE_PLUGIN_VERSION = "1.18.2"
+#
+# 最新リリースの1.18.2では、YouTubeがWEB/WEBEMBEDDEDへSABR応答（adaptiveFormatsに
+# urlもsignatureCipherも含まれない応答）を返す環境で再生できず、ANDROID/IOSも
+# クライアントバージョンが古く使用できない。これらはmainブランチで修正済みのため、
+# 修正を含むコミットのスナップショットを既定とする。
+# リリース版に戻す場合は LAVALINK_YOUTUBE_PLUGIN_VERSION に "1.18.2" を指定する。
+DEFAULT_YOUTUBE_PLUGIN_VERSION = "f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3"
 
 YOUTUBE_PLUGIN_DEPENDENCY_PREFIX = "dev.lavalink.youtube:youtube-plugin:"
 
@@ -30,6 +36,16 @@ DEFAULT_YOUTUBE_CLIENTS = ["MUSIC", "ANDROID_VR", "WEB", "WEBEMBEDDED", "TVHTML5
 
 DEFAULT_YOUTUBE_CLIENT_OPTIONS = {
     "TVHTML5_SIMPLY": {"playback": True, "playlistLoading": False},
+}
+
+# 1.18.2以降のmainで再生できるように修正されたクライアント。
+# YouTubeがWEB/WEBEMBEDDEDへSABR応答を返す場合、これらが再生手段になる
+# （ANDROID: クライアントバージョン更新でplayerが200を返すようになった、
+#   IOS: クライアントバージョン更新とplayerParamsの変更で再生可能になった）。
+# メタデータ取得は既存のクライアントに任せ、再生専用として登録する。
+RECOVERED_PLAYBACK_CLIENTS = {
+    "ANDROID": {"playback": True, "searching": False, "playlistLoading": False},
+    "IOS": {"playback": True, "searching": False, "playlistLoading": False},
 }
 
 
@@ -199,6 +215,11 @@ def update_youtube_plugin(youtube_plugin_version: str = None):
 
             clients = youtube_config.get("clients")
 
+            client_options = youtube_config.get("clientOptions")
+
+            if client_options is None and clients is not None:
+                client_options = youtube_config["clientOptions"] = {}
+
             if clients:
 
                 new_clients = []
@@ -219,8 +240,29 @@ def update_youtube_plugin(youtube_plugin_version: str = None):
                     changed = True
 
             else:
-                youtube_config["clients"] = list(DEFAULT_YOUTUBE_CLIENTS)
+                clients = youtube_config["clients"] = list(DEFAULT_YOUTUBE_CLIENTS)
                 changed = True
+
+            # SABR応答で再生できない環境向けに、再生可能なクライアントを登録する。
+            # 既に登録済みの場合は利用者の設定を尊重して何もしない。
+            try:
+                insert_at = clients.index("ANDROID_VR") + 1
+            except ValueError:
+                insert_at = len(clients)
+
+            for client, options in RECOVERED_PLAYBACK_CLIENTS.items():
+
+                if client in clients:
+                    continue
+
+                clients.insert(insert_at, client)
+                insert_at += 1
+
+                if client_options is not None:
+                    client_options[client] = dict(options)
+
+                changed = True
+                print(f"🌋 - application.yml: 再生用のYouTubeクライアント {client} を追加しました。")
 
             oauth = youtube_config.get("oauth")
 
@@ -236,8 +278,6 @@ def update_youtube_plugin(youtube_plugin_version: str = None):
                 changed = True
                 print("🌋 - application.yml: refreshTokenが未設定のため、YouTubeのoauth連携を無効化しました "
                       "（連携する場合はオーナー用コマンド ytoauth を使用してください）。")
-
-            client_options = youtube_config.get("clientOptions")
 
             if client_options is not None:
                 for client in list(client_options):
