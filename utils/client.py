@@ -360,7 +360,7 @@ class BotPool:
                             else:
                                 data["info"] = {
                                     "check_version": 3,
-                                    "sourceManagers": ["youtube", "soundcloud", "http"]
+                                    "sourceManagers": ["youtube", "http"]
                                 }
                             break
                 except Exception as e:
@@ -411,7 +411,7 @@ class BotPool:
                 'retries': 120,
                 'prefer_youtube_native_playback': self.config["PREFER_YOUTUBE_NATIVE_PLAYBACK"],
                 'only_use_native_search_providers': self.config["ONLY_USE_NATIVE_SEARCH_PROVIDERS"],
-                'search_providers': self.config["SEARCH_PROVIDERS"].strip().split() or ["amsearch", "tdsearch", "spsearch", "ytsearch", "scsearch"]
+                'search_providers': self.config["SEARCH_PROVIDERS"].strip().split() or ["ytmsearch", "ytsearch"]
             }
             self.loop.create_task(self.check_node(localnode))
 

@@ -216,7 +216,7 @@ class Node:
                             raise Exception(f"❌ - {self._client.bot.user} - [{r.status}]: {await r.text()}"[:300])
                         else:
                             self.version = 3
-                            self.info["sourceManagers"] = ["youtube", "soundcloud", "http"]
+                            self.info["sourceManagers"] = ["youtube", "http"]
                             return
                         break
                 except Exception as e:
