@@ -25,7 +25,10 @@ DEFAULT_CONFIG = {
     "AUTO_ERROR_REPORT_WEBHOOK": '',
     "INTERACTION_COMMAND_ONLY": False,
     "PRESENCE_INTERVAL": 900,
-    "SOURCE_REPO": "https://github.com/zRitsu/MuseHeart-MusicBot.git",
+    # 更新元のリポジトリ。updateコマンドおよびsource_quick_update.shがここから取得する。
+    # 本家（zRitsu/MuseHeart-MusicBot）を指したままにすると、このフォークの変更が
+    # 更新のたびに失われるため、フォーク自身を指す。
+    "SOURCE_REPO": "https://github.com/warasugitewara/JP-MuseHeart-MusicBot.git",
     "SUPPORT_SERVER": "",
     "ADDITIONAL_BOT_IDS": "",
     "INVITE_PERMISSIONS": 332892794064,
@@ -103,6 +106,9 @@ DEFAULT_CONFIG = {
     "LAVALINK_RAM_LIMIT": 120,
     "LAVALINK_CPU_CORES": 2,
     "LAVALINK_FILE_URL": "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/Lavalink.jar",
+    # 設定するとLavalink.jarのSHA-256を検証する（空の場合は検証しない）。
+    # 既定のURLは同じタグへjarが再アップロードされるため、既定値は空にしている。
+    "LAVALINK_FILE_SHA256": "",
     "LAVALINK_YOUTUBE_PLUGIN_VERSION": DEFAULT_YOUTUBE_PLUGIN_VERSION,
     "POTOKEN_YTID": "",
     "POTOKEN_BROWSER_EXECUTABLE": "",

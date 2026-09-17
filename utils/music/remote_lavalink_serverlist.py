@@ -48,7 +48,9 @@ def get_lavalink_servers():
 
     for url_type, url in lavalink_urls.items():
 
-        markdown = requests.get(url).content.decode("utf-8")
+        r = requests.get(url, timeout=(10, 30))
+        r.raise_for_status()
+        markdown = r.content.decode("utf-8")
 
         for host in markdown.split("### Hosted by @ ")[1:]:
 

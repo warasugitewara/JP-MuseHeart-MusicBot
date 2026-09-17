@@ -67,7 +67,7 @@
 
 | 要件 | 説明 |
 |------|------|
-| **Python** | 3.9, 3.10, または 3.11 ([Microsoft Store](https://apps.microsoft.com/store/detail/9PJPW5LDXLZ5) / [公式サイト](https://www.python.org/downloads/)) |
+| **Python** | 3.10以上（3.11を推奨） ([Microsoft Store](https://apps.microsoft.com/store/detail/9PJPW5LDXLZ5) / [公式サイト](https://www.python.org/downloads/)) |
 | **Git** | [ダウンロード](https://git-scm.com/downloads)（ポータブル版は不可） |
 | **JDK 17以上** | [ダウンロード](https://www.azul.com/downloads)（Windows/Linuxは自動ダウンロード） |
 
@@ -121,6 +121,25 @@ bash source_update.sh
 ```
 
 > ⚠️ 更新時、手動で行った変更が上書きされる可能性があります
+> （`git reset --hard` と `git pull -X theirs` を実行するため）
+
+更新元はこのフォーク（`warasugitewara/JP-MuseHeart-MusicBot`）です。
+以前のバージョンから更新する場合、`origin` が本家を指したままになっていることがあるため、
+一度だけ次のコマンドで更新元を切り替えてください。
+
+```shell
+git remote set-url origin https://github.com/warasugitewara/JP-MuseHeart-MusicBot.git
+```
+
+> 📌 本家 [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot) は
+> 2026年6月12日にアーカイブされ、読み取り専用になっています。
+> 本家の変更を取り込む場合は、`upstream` を別途追加して手動でマージしてください。
+>
+> ```shell
+> git remote add upstream https://github.com/zRitsu/MuseHeart-MusicBot.git
+> git fetch upstream
+> git merge upstream/main
+> ```
 
 ---
 
@@ -169,6 +188,37 @@ LAVALINK_YOUTUBE_PLUGIN_VERSION='f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3'
 
 数字のみの値はリリース版、それ以外（コミットハッシュ等）はスナップショットとして扱われます。
 `keep` を指定すると自動更新を行わず、`application.yml` の内容をそのまま使用します。
+
+> 🔒 **安定運用・セキュリティ上の推奨**
+> プラグインは Lavalink が起動時にMavenリポジトリから取得します（署名やチェックサムの検証は行われません）。
+> 常用する環境では `LAVALINK_YOUTUBE_PLUGIN_VERSION` にリリース版か特定のコミットハッシュを明示し、
+> 再生できなくなったときにだけ値を更新してください。
+> 既定値の更新に自動追従したくない場合は `keep` を指定します。
+
+---
+
+## 🔒 Lavalink.jar の検証（オプション）
+
+ローカルLavalinkを使用する場合、起動時に `LAVALINK_FILE_URL` から `Lavalink.jar` を
+ダウンロードして実行します。既定のURLは第三者が配布するビルドで、署名もチェックサムも
+付いていません。また同じリリースタグへ再アップロードされるため、内容は予告なく変わります。
+
+内容を固定したい場合は、起動時のログに表示されるSHA-256を `.env` に記入してください。
+
+```
+🔒 - Lavalink.jar のSHA-256: 1c98b9ee0f6a36d2fcc2f516acd856049f8b05bcab3af4fb30a529794bdd0a70
+```
+
+```env
+LAVALINK_FILE_SHA256='1c98b9ee0f6a36d2fcc2f516acd856049f8b05bcab3af4fb30a529794bdd0a70'
+```
+
+設定すると、ダウンロード時と既存ファイルの起動時の両方でハッシュを検証し、
+一致しない場合はjarを実行せずに中止します。空の場合は検証を行いません。
+
+> 📌 配布物が更新されると当然ハッシュも変わり、起動が中止されます。
+> その場合はログに出力される実際の値を確認し、意図した更新であることを確かめてから
+> `LAVALINK_FILE_SHA256` を更新してください。
 
 > 📌 現在の既定値はmainブランチのコミットハッシュです。最新リリースの 1.18.2 では、
 > YouTubeがSABR応答を返す環境で再生できない問題が未修正のためです。詳細は下記のドキュメントを参照してください。

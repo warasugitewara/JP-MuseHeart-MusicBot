@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import glob
+import hashlib
 import os
 import platform
 import re
@@ -26,6 +27,18 @@ DEFAULT_YOUTUBE_PLUGIN_VERSION = "f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3"
 
 YOUTUBE_PLUGIN_DEPENDENCY_PREFIX = "dev.lavalink.youtube:youtube-plugin:"
 
+# ダウンロード時のタイムアウト（接続: 10秒 / チャンク受信: 60秒）。
+# 指定しないと相手が応答を止めた際に起動処理が無期限に停止する。
+DOWNLOAD_TIMEOUT = (10, 60)
+
+# jabbaのインストールスクリプトはダウンロード後にそのまま実行するため、
+# masterブランチではなく固定のコミットから取得する
+# （masterのままだと、上流の変更がそのまま手元で実行される）。
+JABBA_INSTALL_SCRIPT_COMMIT = "4202bb6203800bdd6fb5a5b96f460c04de373fcf"
+JABBA_INSTALL_SCRIPT_URL = (
+    f"https://raw.githubusercontent.com/shyiko/jabba/{JABBA_INSTALL_SCRIPT_COMMIT}/install.sh"
+)
+
 # youtube-sourceから削除されたクライアント（そのまま残すと読み込みに失敗する）と、
 # 代わりに使用するクライアント。
 REMOVED_YOUTUBE_CLIENTS = {
@@ -49,49 +62,116 @@ RECOVERED_PLAYBACK_CLIENTS = {
 }
 
 
-def download_file(url, filename):
+def file_sha256(filename):
+    digest = hashlib.sha256()
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def download_file(url, filename, expected_sha256: str = None):
+
+    expected_sha256 = (expected_sha256 or "").strip().lower()
 
     if os.path.isfile(filename):
-        return
 
-    r = requests.get(url, stream=True)
-    total_size = int(r.headers.get('content-length', 0))
-    bytes_downloaded = 0
-    previows_progress = 0
-    start_time = time.time()
+        if not expected_sha256:
+            return
 
-    if total_size >= 1024 * 1024:
-        total_txt = f"{total_size / (1024 * 1024):.2f} MB"
-    else:
-        total_txt = f"{total_size / 1024:.2f} KB"
+        current_sha256 = file_sha256(filename)
 
-    with open(f"{filename}.tmp", 'wb') as f:
+        if current_sha256 == expected_sha256:
+            print(f"🔒 - {filename} のSHA-256を検証しました。")
+            return
 
-        for data in r.iter_content(chunk_size=2500*1024):
-            f.write(data)
-            bytes_downloaded += len(data)
-            try:
-                current_progress = int((bytes_downloaded / total_size) * 100)
-            except ZeroDivisionError:
-                current_progress = 0
+        # 設定されたハッシュと一致しない場合（配布物が差し替えられた、設定値を
+        # 更新した、ファイルが壊れた等）は、取得し直して再検証する。
+        print(f"⚠️ - {filename} のSHA-256が設定値と一致しません。ダウンロードし直します。\n"
+              f"     設定値: {expected_sha256}\n"
+              f"     実際値: {current_sha256}")
 
-            if current_progress != previows_progress:
-                previows_progress = current_progress
-                time_elapsed = time.time() - start_time
+        os.remove(filename)
+
+    tmp_filename = f"{filename}.tmp"
+
+    r = requests.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT)
+
+    try:
+        # HTTPエラー（404のエラーページ等）の本文をそのまま保存すると、壊れた
+        # jar/ymlが正規のファイルとして配置され、以降の起動が失敗し続けるため、
+        # ステータスコードを確認してから書き込む。
+        r.raise_for_status()
+
+        total_size = int(r.headers.get('content-length', 0))
+        bytes_downloaded = 0
+        previows_progress = 0
+        start_time = time.time()
+
+        if total_size >= 1024 * 1024:
+            total_txt = f"{total_size / (1024 * 1024):.2f} MB"
+        else:
+            total_txt = f"{total_size / 1024:.2f} KB"
+
+        digest = hashlib.sha256()
+
+        with open(tmp_filename, 'wb') as f:
+
+            for data in r.iter_content(chunk_size=2500*1024):
+                f.write(data)
+                digest.update(data)
+                bytes_downloaded += len(data)
                 try:
-                    download_speed = bytes_downloaded / time_elapsed / 1024
-                    if download_speed >= 1:
-                        download_speed = (download_speed or 1) / 1024
-                        speed_txt = "MB/s"
-                    else:
-                        speed_txt = "KB/s"
-                    print(f"Download do arquivo {filename} {current_progress}% concluído ({download_speed:.2f} {speed_txt} / {total_txt})")
-                except:
-                    print(f"Download do arquivo {filename} {current_progress}% concluído")
+                    current_progress = int((bytes_downloaded / total_size) * 100)
+                except ZeroDivisionError:
+                    current_progress = 0
 
-    r.close()
+                if current_progress != previows_progress:
+                    previows_progress = current_progress
+                    time_elapsed = time.time() - start_time
+                    try:
+                        download_speed = bytes_downloaded / time_elapsed / 1024
+                        if download_speed >= 1:
+                            download_speed = (download_speed or 1) / 1024
+                            speed_txt = "MB/s"
+                        else:
+                            speed_txt = "KB/s"
+                        print(f"Download do arquivo {filename} {current_progress}% concluído ({download_speed:.2f} {speed_txt} / {total_txt})")
+                    except:
+                        print(f"Download do arquivo {filename} {current_progress}% concluído")
 
-    os.rename(f"{filename}.tmp", filename)
+        # 転送が途中で切れてもiter_contentが例外を出さずに終了する場合があるため、
+        # Content-Lengthと受信済みサイズを突き合わせて不完全なファイルを弾く。
+        # 圧縮転送の場合は両者が一致しないので比較しない。
+        if total_size and not r.headers.get("content-encoding") and bytes_downloaded != total_size:
+            raise IOError(
+                f"{filename}のダウンロードが不完全です "
+                f"（受信: {bytes_downloaded} バイト / 期待値: {total_size} バイト）"
+            )
+
+        downloaded_sha256 = digest.hexdigest()
+
+        if expected_sha256 and downloaded_sha256 != expected_sha256:
+            raise IOError(
+                f"{filename}のSHA-256が設定値と一致しません。\n"
+                f"  設定値: {expected_sha256}\n"
+                f"  実際値: {downloaded_sha256}\n"
+                f"  URL: {url}\n"
+                f"配布物が更新された場合は設定値を上記の実際値へ更新してください。"
+            )
+
+        # 固定したい場合に控えられるよう、取得したファイルのハッシュを必ず表示する。
+        print(f"🔒 - {filename} のSHA-256: {downloaded_sha256}")
+
+    except BaseException:
+        with suppress(OSError):
+            os.remove(tmp_filename)
+        raise
+
+    finally:
+        r.close()
+
+    os.rename(tmp_filename, filename)
 
     return True
 
@@ -317,7 +397,8 @@ def run_lavalink(
         lavalink_additional_sleep: int = 0,
         lavalink_cpu_cores: int = 1,
         use_jabba: bool = False,
-        youtube_plugin_version: str = None
+        youtube_plugin_version: str = None,
+        lavalink_file_sha256: str = None
 ):
     arch, osname = platform.architecture()
     jdk_platform = f"{platform.system()}-{arch}-{osname}"
@@ -329,7 +410,9 @@ def run_lavalink(
         dirs = []
 
         try:
-            dirs.append(os.path.join(os.environ["JAVA_HOME"] + "bin/java"))
+            # os.path.joinの引数が1つだと区切り文字が入らず、
+            # "/usr/lib/jvm/default-javabin/java" のような無効なパスになっていた。
+            dirs.append(os.path.join(os.environ["JAVA_HOME"], "bin", "java"))
         except KeyError:
             pass
 
@@ -427,7 +510,7 @@ def run_lavalink(
                 except:
                     pass
 
-                download_file("https://raw.githubusercontent.com/shyiko/jabba/master/install.sh", "install_jabba.sh")
+                download_file(JABBA_INSTALL_SCRIPT_URL, "install_jabba.sh")
                 subprocess.call("bash install_jabba.sh", shell=True)
                 subprocess.call("./.jabba/bin/jabba install zulu@1.17.0-0", shell=True)
                 os.remove("install_jabba.sh")
@@ -469,11 +552,11 @@ def run_lavalink(
 
     clear_plugins = False
 
-    for filename, url in (
-        ("Lavalink.jar", lavalink_file_url),
-        ("application.yml", "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/application.yml")
+    for filename, url, sha256 in (
+        ("Lavalink.jar", lavalink_file_url, lavalink_file_sha256),
+        ("application.yml", "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/application.yml", None)
     ):
-        if download_file(url, filename):
+        if download_file(url, filename, expected_sha256=sha256):
             clear_plugins = True
 
     if update_youtube_plugin(youtube_plugin_version) and not clear_plugins:
@@ -488,7 +571,9 @@ def run_lavalink(
         java_cmd += f" -Xmx{lavalink_ram_limit}m"
 
     if 0 < lavalink_initial_ram < lavalink_ram_limit:
-        java_cmd += f" -Xms{lavalink_ram_limit}m"
+        # 初期ヒープはLAVALINK_INITIAL_RAMの値を使う（従来は上限値を指定していたため、
+        # 設定に関係なく起動直後からRAM_LIMIT分のヒープを確保してしまっていた）。
+        java_cmd += f" -Xms{lavalink_initial_ram}m"
 
     if os.name != "nt":
 

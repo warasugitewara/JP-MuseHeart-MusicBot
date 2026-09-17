@@ -8,6 +8,8 @@ tinymongo
 dnspython>=2.6.1
 psutil
 aiofiles
+# utils/uptime_kuma.py が直接importする（従来はdisnake経由の推移的依存だった）
+aiohttp
 git+https://github.com/zRitsu/jishaku.git@14d2dbd51d61382c687af8d8655f54f41674c0eb
 packaging
 aiosqlite

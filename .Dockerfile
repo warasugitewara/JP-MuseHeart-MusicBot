@@ -1,18 +1,27 @@
-FROM python:3.10-slim
-COPY --from=openjdk:11-jdk-slim /usr/local/openjdk-11 /usr/local/openjdk-11
+# ベースイメージはDebian 12 (bookworm) を明示的に指定する。
+# `python:3.10-slim` のままだと、タグが指すDebianのバージョンが変わった際に
+# 下でコピーするJREとglibcのバージョンが噛み合わなくなる可能性がある。
+FROM python:3.10-slim-bookworm
 
-ENV JAVA_HOME /usr/local/openjdk-11
+# Lavalinkの起動にはJava 17以上が必要（utils/music/local_lavalink.py の
+# validate_java が17未満を弾く）。
+# 以前は openjdk:11-jdk-slim からコピーしていたが、Java 11では要件を満たさず、
+# かつ openjdk イメージ自体が非推奨化されタグも削除されているためビルドできない。
+# Ubuntu 22.04ベース (glibc 2.35) のJREをbookworm (glibc 2.36) 上で使う。
+COPY --from=eclipse-temurin:17-jre-jammy /opt/java/openjdk /opt/java/openjdk
 
-RUN update-alternatives --install /usr/bin/java java /usr/local/openjdk-11/bin/java 1
+ENV JAVA_HOME=/opt/java/openjdk
+
+RUN update-alternatives --install /usr/bin/java java /opt/java/openjdk/bin/java 1
 
 WORKDIR /usr/src/app
 
 COPY . .
 
 RUN apt-get update \
-&& apt-get install -y gcc \
-&& apt-get install -y git \
-&& apt-get clean
+&& apt-get install -y --no-install-recommends gcc git \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir -r requirements.txt
 
