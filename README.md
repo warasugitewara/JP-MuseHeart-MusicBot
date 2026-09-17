@@ -67,7 +67,7 @@
 
 | 要件 | 説明 |
 |------|------|
-| **Python** | 3.9, 3.10, または 3.11 ([Microsoft Store](https://apps.microsoft.com/store/detail/9PJPW5LDXLZ5) / [公式サイト](https://www.python.org/downloads/)) |
+| **Python** | 3.10以上（3.11を推奨） ([Microsoft Store](https://apps.microsoft.com/store/detail/9PJPW5LDXLZ5) / [公式サイト](https://www.python.org/downloads/)) |
 | **Git** | [ダウンロード](https://git-scm.com/downloads)（ポータブル版は不可） |
 | **JDK 17以上** | [ダウンロード](https://www.azul.com/downloads)（Windows/Linuxは自動ダウンロード） |
 
@@ -121,6 +121,25 @@ bash source_update.sh
 ```
 
 > ⚠️ 更新時、手動で行った変更が上書きされる可能性があります
+> （`git reset --hard` と `git pull -X theirs` を実行するため）
+
+更新元はこのフォーク（`warasugitewara/JP-MuseHeart-MusicBot`）です。
+以前のバージョンから更新する場合、`origin` が本家を指したままになっていることがあるため、
+一度だけ次のコマンドで更新元を切り替えてください。
+
+```shell
+git remote set-url origin https://github.com/warasugitewara/JP-MuseHeart-MusicBot.git
+```
+
+> 📌 本家 [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot) は
+> 2026年6月12日にアーカイブされ、読み取り専用になっています。
+> 本家の変更を取り込む場合は、`upstream` を別途追加して手動でマージしてください。
+>
+> ```shell
+> git remote add upstream https://github.com/zRitsu/MuseHeart-MusicBot.git
+> git fetch upstream
+> git merge upstream/main
+> ```
 
 ---
 
@@ -169,6 +188,12 @@ LAVALINK_YOUTUBE_PLUGIN_VERSION='f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3'
 
 数字のみの値はリリース版、それ以外（コミットハッシュ等）はスナップショットとして扱われます。
 `keep` を指定すると自動更新を行わず、`application.yml` の内容をそのまま使用します。
+
+> 🔒 **安定運用・セキュリティ上の推奨**
+> プラグインは Lavalink が起動時にMavenリポジトリから取得します（署名やチェックサムの検証は行われません）。
+> 常用する環境では `LAVALINK_YOUTUBE_PLUGIN_VERSION` にリリース版か特定のコミットハッシュを明示し、
+> 再生できなくなったときにだけ値を更新してください。
+> 既定値の更新に自動追従したくない場合は `keep` を指定します。
 
 > 📌 現在の既定値はmainブランチのコミットハッシュです。最新リリースの 1.18.2 では、
 > YouTubeがSABR応答を返す環境で再生できない問題が未修正のためです。詳細は下記のドキュメントを参照してください。

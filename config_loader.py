@@ -25,7 +25,10 @@ DEFAULT_CONFIG = {
     "AUTO_ERROR_REPORT_WEBHOOK": '',
     "INTERACTION_COMMAND_ONLY": False,
     "PRESENCE_INTERVAL": 900,
-    "SOURCE_REPO": "https://github.com/zRitsu/MuseHeart-MusicBot.git",
+    # 更新元のリポジトリ。updateコマンドおよびsource_quick_update.shがここから取得する。
+    # 本家（zRitsu/MuseHeart-MusicBot）を指したままにすると、このフォークの変更が
+    # 更新のたびに失われるため、フォーク自身を指す。
+    "SOURCE_REPO": "https://github.com/warasugitewara/JP-MuseHeart-MusicBot.git",
     "SUPPORT_SERVER": "",
     "ADDITIONAL_BOT_IDS": "",
     "INVITE_PERMISSIONS": 332892794064,

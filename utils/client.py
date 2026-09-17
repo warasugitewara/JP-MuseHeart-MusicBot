@@ -592,7 +592,10 @@ class BotPool:
                 ini_file = "auto_lavalink.ini"
                 print(f"Lavalinkサーバーリストをダウンロードしています（ファイル: {ini_file}）")
                 try:
-                    r = requests.get(self.config["LAVALINK_SERVER_LIST"], allow_redirects=False)
+                    r = requests.get(self.config["LAVALINK_SERVER_LIST"], allow_redirects=False,
+                                     timeout=(10, 30))
+                    # エラーページの内容をiniとして保存しないようにステータスを確認する。
+                    r.raise_for_status()
                     with open("auto_lavalink.ini", 'wb') as f:
                         f.write(r.content)
                     r.close()
