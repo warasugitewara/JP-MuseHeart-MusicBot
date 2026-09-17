@@ -678,6 +678,11 @@ class BotPool:
         if not self.remote_git_url:
             self.remote_git_url = self.config["SOURCE_REPO"]
 
+        # 末尾に.gitが残っていると、この値から組み立てる <url>/commit/<sha> や
+        # <url>/commits/main といったリンクが壊れる。
+        if self.remote_git_url.endswith(".git"):
+            self.remote_git_url = self.remote_git_url[:-4]
+
         prefix = get_prefix if intents.message_content else commands.when_mentioned
 
         self.ws_client = WSClient(self.config["RPC_SERVER"], pool=self)
@@ -1371,7 +1376,7 @@ class BotCore(commands.AutoShardedBot):
                   "公開ボットとして設定されています\n" \
                   "ボットが公開的に追加されるよう宣伝される場合、" \
                   "GPL-2ライセンスの条件に従う必要があります: " \
-                  "https://github.com/zRitsu/MuseHeart-MusicBot/blob/main/LICENSE\n" \
+                  "https://github.com/warasugitewara/JP-MuseHeart-MusicBot/blob/main/LICENSE\n" \
                   "ライセンスの条件に従いたくない場合は、以下のリンクからpublic botオプションの" \
                   f"チェックを外してボットをプライベートにできます: https://discord.com/developers/applications/{self.user.id}/bot"
 

@@ -650,7 +650,10 @@ class Misc(commands.Cog):
             if user_data["custom_prefix"]:
                 embed.description += f"> ⌨️ **⠂あなたのユーザープレフィックス:** `{disnake.utils.escape_markdown(user_data['custom_prefix'], as_needed=True)}`\n"
 
-        links = "[`[ソース]`](https://github.com/zRitsu/MuseHeart-MusicBot)"
+        # 実際に動作しているコードのリポジトリを指す。本家URLを直接埋め込むと、
+        # すぐ上に表示している「現在のコミット」のリンク先と食い違ううえ、
+        # GPL-2が求める「配布物に対応するソース」の提示にもならない。
+        links = f"[`[ソース]`]({bot.pool.remote_git_url})"
 
         if bot.config["SUPPORT_SERVER"]:
             links = f"[`[サポート]`]({bot.config['SUPPORT_SERVER']})  **|** {links}"
