@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import glob
+import hashlib
 import os
 import platform
 import re
@@ -61,10 +62,36 @@ RECOVERED_PLAYBACK_CLIENTS = {
 }
 
 
-def download_file(url, filename):
+def file_sha256(filename):
+    digest = hashlib.sha256()
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def download_file(url, filename, expected_sha256: str = None):
+
+    expected_sha256 = (expected_sha256 or "").strip().lower()
 
     if os.path.isfile(filename):
-        return
+
+        if not expected_sha256:
+            return
+
+        current_sha256 = file_sha256(filename)
+
+        if current_sha256 == expected_sha256:
+            print(f"🔒 - {filename} のSHA-256を検証しました。")
+            return
+
+        # 設定されたハッシュと一致しない場合（配布物が差し替えられた、設定値を
+        # 更新した、ファイルが壊れた等）は、取得し直して再検証する。
+        print(f"⚠️ - {filename} のSHA-256が設定値と一致しません。ダウンロードし直します。\n"
+              f"     設定値: {expected_sha256}\n"
+              f"     実際値: {current_sha256}")
+
+        os.remove(filename)
 
     tmp_filename = f"{filename}.tmp"
 
@@ -86,10 +113,13 @@ def download_file(url, filename):
         else:
             total_txt = f"{total_size / 1024:.2f} KB"
 
+        digest = hashlib.sha256()
+
         with open(tmp_filename, 'wb') as f:
 
             for data in r.iter_content(chunk_size=2500*1024):
                 f.write(data)
+                digest.update(data)
                 bytes_downloaded += len(data)
                 try:
                     current_progress = int((bytes_downloaded / total_size) * 100)
@@ -118,6 +148,20 @@ def download_file(url, filename):
                 f"{filename}のダウンロードが不完全です "
                 f"（受信: {bytes_downloaded} バイト / 期待値: {total_size} バイト）"
             )
+
+        downloaded_sha256 = digest.hexdigest()
+
+        if expected_sha256 and downloaded_sha256 != expected_sha256:
+            raise IOError(
+                f"{filename}のSHA-256が設定値と一致しません。\n"
+                f"  設定値: {expected_sha256}\n"
+                f"  実際値: {downloaded_sha256}\n"
+                f"  URL: {url}\n"
+                f"配布物が更新された場合は設定値を上記の実際値へ更新してください。"
+            )
+
+        # 固定したい場合に控えられるよう、取得したファイルのハッシュを必ず表示する。
+        print(f"🔒 - {filename} のSHA-256: {downloaded_sha256}")
 
     except BaseException:
         with suppress(OSError):
@@ -353,7 +397,8 @@ def run_lavalink(
         lavalink_additional_sleep: int = 0,
         lavalink_cpu_cores: int = 1,
         use_jabba: bool = False,
-        youtube_plugin_version: str = None
+        youtube_plugin_version: str = None,
+        lavalink_file_sha256: str = None
 ):
     arch, osname = platform.architecture()
     jdk_platform = f"{platform.system()}-{arch}-{osname}"
@@ -365,7 +410,9 @@ def run_lavalink(
         dirs = []
 
         try:
-            dirs.append(os.path.join(os.environ["JAVA_HOME"] + "bin/java"))
+            # os.path.joinの引数が1つだと区切り文字が入らず、
+            # "/usr/lib/jvm/default-javabin/java" のような無効なパスになっていた。
+            dirs.append(os.path.join(os.environ["JAVA_HOME"], "bin", "java"))
         except KeyError:
             pass
 
@@ -505,11 +552,11 @@ def run_lavalink(
 
     clear_plugins = False
 
-    for filename, url in (
-        ("Lavalink.jar", lavalink_file_url),
-        ("application.yml", "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/application.yml")
+    for filename, url, sha256 in (
+        ("Lavalink.jar", lavalink_file_url, lavalink_file_sha256),
+        ("application.yml", "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/application.yml", None)
     ):
-        if download_file(url, filename):
+        if download_file(url, filename, expected_sha256=sha256):
             clear_plugins = True
 
     if update_youtube_plugin(youtube_plugin_version) and not clear_plugins:

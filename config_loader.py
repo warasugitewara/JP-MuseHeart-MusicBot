@@ -106,6 +106,9 @@ DEFAULT_CONFIG = {
     "LAVALINK_RAM_LIMIT": 120,
     "LAVALINK_CPU_CORES": 2,
     "LAVALINK_FILE_URL": "https://github.com/zRitsu/LL-binaries/releases/download/0.0.1/Lavalink.jar",
+    # 設定するとLavalink.jarのSHA-256を検証する（空の場合は検証しない）。
+    # 既定のURLは同じタグへjarが再アップロードされるため、既定値は空にしている。
+    "LAVALINK_FILE_SHA256": "",
     "LAVALINK_YOUTUBE_PLUGIN_VERSION": DEFAULT_YOUTUBE_PLUGIN_VERSION,
     "POTOKEN_YTID": "",
     "POTOKEN_BROWSER_EXECUTABLE": "",
