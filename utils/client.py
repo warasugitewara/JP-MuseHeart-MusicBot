@@ -226,6 +226,9 @@ class BotPool:
                     lavalink_initial_ram=self.config['LAVALINK_INITIAL_RAM'],
                     lavalink_ram_limit=self.config['LAVALINK_RAM_LIMIT'],
                     lavalink_additional_sleep=int(self.config['LAVALINK_ADDITIONAL_SLEEP']),
+                    # 渡していなかったためrun_lavalinkの既定値(1)が常に使われ、
+                    # LAVALINK_CPU_CORESの設定が無視されていた。
+                    lavalink_cpu_cores=self.config['LAVALINK_CPU_CORES'],
                     use_jabba=self.config["USE_JABBA"],
                     youtube_plugin_version=self.config["LAVALINK_YOUTUBE_PLUGIN_VERSION"],
                     lavalink_file_sha256=self.config["LAVALINK_FILE_SHA256"]
