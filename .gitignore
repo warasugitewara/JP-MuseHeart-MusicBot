@@ -182,3 +182,8 @@ ai_prompt.txt
 /dev/
 NodeLink/
 config.js
+
+# ローカル開発ツールの状態（Claude Code / Serena）。
+# プロジェクトのコードではなく、マシンごとに異なるため追跡しない。
+/.claude/
+/.serena/
