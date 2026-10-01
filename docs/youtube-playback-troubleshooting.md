@@ -240,13 +240,20 @@ LAVALINK_YOUTUBE_PLUGIN_VERSION='f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3'
 **poToken**（`WEB` / `WEBEMBEDDED` に効く）
 
 ```
-<prefix>ytpotoken                        # サーバー上のブラウザで自動取得
-<prefix>ytpotoken <poToken> <visitorData>  # 別環境で取得した値を手動指定
+<prefix>ytpotoken <poToken> <visitorData>
 ```
 
-自動取得にはChromium/Chromeと表示環境が必要です。ヘッドレスのサーバーでは
-別のPCで [youtube-trusted-session-generator](https://github.com/iv-org/youtube-trusted-session-generator)
-を実行し、得られた値を引数で渡してください。
+値は [youtube-trusted-session-generator](https://github.com/iv-org/youtube-trusted-session-generator)
+で取得します。Dockerが使える環境で次を実行し、出力された2つの値を引数で渡してください。
+
+```
+docker run quay.io/invidious/youtube-trusted-session-generator
+```
+
+> [!NOTE]
+> このツールはAGPL-3.0で、本リポジトリ（GPL-2.0-only）とライセンス非互換のため同梱していません。
+> 以前はボット内から自動取得していましたが、同じ理由で削除しました。
+
 値は稼働中のLavalinkへ即時適用され、`application.yml` にも保存されます。
 poTokenには有効期限があるため、再生できなくなったら再実行してください。
 
@@ -301,8 +308,6 @@ Spotifyクライアント用で、Lavalink側のLavaSrcには渡されません�
 | 対象 | 説明 |
 |---|---|
 | `LAVALINK_YOUTUBE_PLUGIN_VERSION` | youtube-sourceのバージョン。`keep` で自動更新を無効化 |
-| `POTOKEN_YTID` | poToken取得時に再生する動画ID |
-| `POTOKEN_BROWSER_EXECUTABLE` | Chromium/Chromeの実行ファイルパス |
 | `utils/music/local_lavalink.py` | Lavalinkの起動と `application.yml` の自動更新処理 |
 | `modules/ll_yt_oauth.py` | `ytoauth` / `ytpotoken` コマンド |
 | `modules/legacy_cmds.py` | `ull` / `rll` コマンド |

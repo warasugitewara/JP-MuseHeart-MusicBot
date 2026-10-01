@@ -293,37 +293,6 @@ class YtOauthLL(commands.Cog):
         except Exception:
             return False
 
-    async def generate_potoken(self):
-        """youtube-trusted-session-generatorを使ってpoToken/visitorDataを取得する。"""
-
-        from utils.music.youtube_trusted_session_generator import Browser
-
-        browser = Browser()
-
-        try:
-            # rootで実行している場合、chromiumのサンドボックスは使用できない。
-            sandbox = os.geteuid() != 0
-        except AttributeError:
-            sandbox = True
-
-        try:
-            await asyncio.wait_for(
-                browser.start(
-                    sandbox=sandbox,
-                    browser_executable_path=self.bot.config.get("POTOKEN_BROWSER_EXECUTABLE") or None,
-                    ytid=self.bot.config.get("POTOKEN_YTID") or "jNQXAC9IVRw"
-                ), timeout=180
-            )
-        except Exception:
-            if not browser.data:
-                raise
-            traceback.print_exc()
-
-        if not browser.data.get("po_token") or not browser.data.get("visitor_data"):
-            raise GenericError("**ブラウザからpoTokenを取得できませんでした。**")
-
-        return browser.data
-
     def save_potoken_to_yml(self, po_token: str, visitor_data: str):
 
         if not os.path.isfile("./application.yml"):
@@ -353,37 +322,20 @@ class YtOauthLL(commands.Cog):
     )
     async def ytpotoken(self, ctx: CustomContext, po_token: str = None, visitor_data: str = None):
 
-        if bool(po_token) != bool(visitor_data):
+        # poTokenの取得に使うyoutube-trusted-session-generatorはAGPL-3.0であり、
+        # 本リポジトリ(GPL-2.0-only)とライセンス非互換のため同梱していない。
+        # 値は利用者が外部ツールで取得し、このコマンドで渡す。
+        if not po_token or not visitor_data:
             raise GenericError(
-                "**poTokenとvisitorDataは両方指定する必要があります。**\n"
+                "**poTokenとvisitorDataの両方を指定してください。**\n\n"
+                "値は [youtube-trusted-session-generator](<https://github.com/iv-org/youtube-trusted-session-generator>) "
+                "で取得できます（Dockerが使える環境で実行してください）:\n"
+                "```\ndocker run quay.io/invidious/youtube-trusted-session-generator```\n"
+                "出力された2つの値を次のように指定します:\n"
                 f"```\n{ctx.prefix}{ctx.invoked_with} <poToken> <visitorData>```"
             )
 
         color = self.bot.get_color(ctx.guild.me)
-
-        msg = None
-
-        if not po_token:
-
-            msg = await ctx.send(embed=disnake.Embed(
-                color=color,
-                description="**ブラウザを起動してpoTokenを取得しています。最大3分ほどかかります...**"
-            ))
-
-            try:
-                data = await self.generate_potoken()
-            except Exception as e:
-                traceback.print_exc()
-                raise GenericError(
-                    f"**poTokenの自動取得に失敗しました:** `{repr(e)[:200]}`\n\n"
-                    "サーバーにChromium/Google Chromeや表示環境が無い場合、自動取得は利用できません。\n"
-                    "別のPCで [youtube-trusted-session-generator](<https://github.com/iv-org/youtube-trusted-session-generator>) "
-                    "を実行して取得した値を、以下のように手動で指定してください:\n"
-                    f"```\n{ctx.prefix}{ctx.invoked_with} <poToken> <visitorData>```"
-                )
-
-            po_token = data["po_token"]
-            visitor_data = data["visitor_data"]
 
         txts = []
         applied_nodes = []
@@ -436,10 +388,7 @@ class YtOauthLL(commands.Cog):
                         "\n\n-# poTokenには有効期限があります。再生できなくなった場合はこのコマンドを再実行してください。"
         )
 
-        if msg:
-            await msg.edit(embed=embed)
-        else:
-            await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
 def setup(bot: BotCore):
     bot.add_cog(YtOauthLL(bot))
