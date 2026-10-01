@@ -536,6 +536,7 @@ class Owner(commands.Cog):
 
         return out_git
 
+    @commands.is_owner()
     @commands.max_concurrency(1, commands.BucketType.guild)
     @commands.cooldown(1, 10, commands.BucketType.user)
     @panel_command(aliases=["latest", "lastupdate"], description="最新のアップデートを表示します。", emoji="📈",

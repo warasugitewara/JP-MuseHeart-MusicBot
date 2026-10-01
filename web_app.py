@@ -277,7 +277,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                     print(
                         f"👤 - ユーザー [{', '.join(str(i) for i in w.user_ids)}] のRPCデータ処理中にエラーが発生しました: {repr(e)}")
 
-        bots_ws.remove(self)
+        # append される前に切断された場合や二重に on_close が走った場合、
+        # list.remove は ValueError を投げて切断処理を中断してしまう。
+        if self in bots_ws:
+            bots_ws.remove(self)
 
 
 class WSClient:

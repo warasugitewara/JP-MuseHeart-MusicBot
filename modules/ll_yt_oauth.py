@@ -256,7 +256,9 @@ class YtOauthLL(commands.Cog):
                 except KeyError:
                     yml_data['plugins']['youtube'] = {'oauth': new_value}
 
-                with open('./application.yml', 'w') as file:
+                # encodingを指定しないとWindowsでcp932になり、
+                # 非ASCIIを含むapplication.ymlの書き出しに失敗して内容が壊れる。
+                with open('./application.yml', 'w', encoding='utf-8') as file:
                     yaml.dump(yml_data, file)
 
                 if (node := self.bot.music.nodes.get("LOCAL")) and self.has_youtube_plugin(node):
