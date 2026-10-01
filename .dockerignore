@@ -1,5 +1,29 @@
 venv
 .java
-.idea
 .logs
+.idea
 .vscode
+
+# 認証情報・ローカル状態。COPY . . でイメージに焼き込まれると、
+# イメージを配布した時点でトークンやセッションが漏れる。
+.env
+.env.*
+.git
+.gitignore
+application.yml
+application.yml.old
+database.json
+local_database
+lavalink.ini
+auto_lavalink.ini
+.spotify_cache.json
+.credentials.json
+emojis.json
+
+# 再生成される成果物
+__pycache__
+*.pyc
+Lavalink.jar
+plugins
+.tempjar
+.app_commands_sync_data

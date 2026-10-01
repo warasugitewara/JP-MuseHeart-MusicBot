@@ -8,6 +8,7 @@ import os.path
 import re
 import time
 import traceback
+from contextlib import suppress
 from tempfile import gettempdir
 from typing import Optional, TYPE_CHECKING, Union
 from urllib.parse import quote
@@ -188,6 +189,11 @@ class SpotifyClient:
 
         async with aiofiles.open(spotify_cache_file, "w") as f:
             await f.write(json.dumps(self.spotify_cache))
+
+        # 保存先は gettempdir() で、Linuxでは /tmp (1777)。既定のumask 022 では
+        # アクセストークンが同一ホストの他ユーザーから読み取れてしまう。
+        with suppress(OSError):
+            os.chmod(spotify_cache_file, 0o600)
 
     async def get_valid_access_token(self):
         if time.time() >= self.spotify_cache["expires_at"]:
