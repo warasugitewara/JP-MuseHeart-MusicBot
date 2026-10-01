@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from os.path import basename
 
 from utils.music.converters import fix_characters, time_format
