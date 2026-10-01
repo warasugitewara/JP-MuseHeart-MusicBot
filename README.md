@@ -5,7 +5,7 @@
 インタラクティブプレイヤー、スラッシュコマンド対応、[Last.fm](https://www.last.fm/)連携など、多機能なDiscord音楽ボットです。
 
 > **📌 オリジナルリポジトリ**: このプロジェクトは [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot) の日本語フォークです。
-> 設定ファイル（`.example.env`）のコメントを日本語化しています（一部翻訳中）。
+> 設定ファイル（`.example.env`）のコメントを日本語化しています。
 
 ---
 
@@ -132,12 +132,15 @@ git remote set-url origin https://github.com/warasugitewara/JP-MuseHeart-MusicBo
 ```
 
 > 📌 本家 [zRitsu/MuseHeart-MusicBot](https://github.com/zRitsu/MuseHeart-MusicBot) は
-> 2026年6月12日にアーカイブされ、読み取り専用になっています。
-> 本家の変更を取り込む場合は、`upstream` を別途追加して手動でマージしてください。
+> 2026年3月2日以降、更新が停止しています（2026年6月12日に一度アーカイブされましたが、
+> 現在はアーカイブ解除されています）。
+> 本家の最終コミット時点の内容は、このフォークに取り込み済みです（2026年6月6日）。
+> 本家が開発を再開した場合は、`upstream` を追加して手動でマージしてください。
 >
 > ```shell
 > git remote add upstream https://github.com/zRitsu/MuseHeart-MusicBot.git
 > git fetch upstream
+> git log HEAD..upstream/main --oneline   # 取り込むべき差分があるか確認
 > git merge upstream/main
 > ```
 
@@ -275,7 +278,8 @@ YouTubeが再生できない場合は、先に
 ### このフォークの著者
 
 - **[warasugitewara](https://github.com/warasugitewara)** - 日本語化・Uptime Kuma対応
-- **[@claude](https://github.com/claude)** (Anthropic) - 実装支援
+
+実装の一部は Claude Code（AI コーディング支援ツール）を用いて作成しました。
 
 ### オリジナル開発者
 
